@@ -11,9 +11,7 @@ cluster_names = [0:12,14,16,20,24,25,26,28];
 n_clu = length(cluster_names);
 clu_hsc = 0+1;
 
-
 %% read data
-
 
 data_lab_rel = dlmread([dir 'input_lab_rel_hsc_pv.txt']);
 data_lab_number = dlmread([dir 'input_lab_num_tot_nodivide.txt']);
@@ -21,7 +19,6 @@ data_cluster_size = dlmread([dir 'input_cluster_size_rel_hsc_over_time_pv.txt'])
 data_neg_number = dlmread([dir 'input_neg_num_tot_nodivide.txt']);
 
 %% prepare measured vector
-
 
 time = data_lab_rel(:,1);
 
@@ -41,7 +38,6 @@ measured_cluster_size(:,clu_hsc) = [];
 errors_cluster_size_temp = data_cluster_size(:, n_clu + 2 : end);
 errors_cluster_size = errors_cluster_size_temp;
 errors_cluster_size(:,clu_hsc) = [];
-
 
 
 measured_lab_num_hsc = data_lab_number(:,1+clu_hsc);
@@ -110,10 +106,7 @@ dlmwrite('./output/self_renewal.txt', k, 'delimiter','\t')
 
 %% cost function
     function result=fitFun(theta)
-        
-        
-        
-        
+
         I_neg = theta(1: n_clu+2);
         
         
@@ -129,29 +122,24 @@ dlmwrite('./output/self_renewal.txt', k, 'delimiter','\t')
         end
         
         
-        
         p = theta(size(M,1)+(n_clu+1)*2 +3 : end-2);
         
         p = [p(1:20);sum(d(21,:));p(21:end)];% proliferation
-        
         
         
         r = theta(end-1); % logistic parameter
         K = theta(end); % carrying capacity
         
         
-        
         k = sum(d,2)-p;
         
-        
-        
+
         % solv lab
         
         sol_lab = ode45(@ODE, [time(1), 270], l0);
         
         
         model_lab = deval(sol_lab,time)';
-        
         
         
         model_lab_hsc = model_lab(:,clu_hsc) + model_lab(:,n_clu + 1) + model_lab(:,n_clu + 2);
@@ -171,7 +159,6 @@ dlmwrite('./output/self_renewal.txt', k, 'delimiter','\t')
         
         %
         
-        
         model_lab(:,clu_hsc) = model_lab_hsc;
         
         model_neg(:,clu_hsc) = model_neg_hsc;
@@ -184,7 +171,6 @@ dlmwrite('./output/self_renewal.txt', k, 'delimiter','\t')
         model_neg(:,n_clu+1:end) = [];
         
         
-        
         %
         
         model_lab = model_lab ./ repmat(model_lab(:,clu_hsc),1,n_clu);
@@ -193,7 +179,6 @@ dlmwrite('./output/self_renewal.txt', k, 'delimiter','\t')
         
         model_neg = model_neg ./ repmat(model_neg(:,clu_hsc),1,n_clu);
         model_neg(:,clu_hsc) = [];
-        
         
         
         % ODE system
@@ -224,9 +209,7 @@ dlmwrite('./output/self_renewal.txt', k, 'delimiter','\t')
 %% plot
 
 % t_plot = time(1):270;
-% t_plot = time(1):0.25:270; % original version
 t_plot = time(1):0.01:270;
-
 
 %
 
@@ -261,11 +244,7 @@ model_lab(:,n_clu+1:end) = [];
 model_lab = model_lab ./ repmat(model_lab(:,clu_hsc),1,n_clu);
 model_neg = model_neg ./ repmat(model_neg(:,clu_hsc),1,n_clu);
 
-
-
-
 %% number hsc over time
-
 
 figure(1001)
 clf
@@ -278,8 +257,6 @@ hold on
 errorbar(time,measured_lab_num_hsc,errors_lab_num_hsc, 'ob', 'LineWidth', 0.25, 'Capsize', 3,  'MarkerFaceColor', 'b', 'MarkerSize', 3)
 
 plot(t_plot,model_lab_hsc,'r','linewidth',1.2)
-
-
 
 xlabel('Time (days)')
 ylabel('No of labelled cells')
@@ -391,7 +368,6 @@ for ii = 1:n_clu
     
     set(gca,'xscale','log')
 end
-
 
 
 set(gcf, 'PaperUnits', 'centimeters');

@@ -1,4 +1,4 @@
-function C5_bootstrap(n)
+function C1_bootstrap(n)
 %% general info
 rng(n*now)
 
@@ -9,7 +9,6 @@ cluster_names = [0:12,14,16,20,24,25,26,28];
 
 n_clu = length(cluster_names);
 clu_hsc = 0+1;
-
 
 %% read data
 
@@ -40,7 +39,6 @@ measured_cluster_size(:,clu_hsc) = [];
 errors_cluster_size_temp = data_cluster_size(:, n_clu + 2 : end);
 errors_cluster_size = errors_cluster_size_temp;
 errors_cluster_size(:,clu_hsc) = [];
-
 
 
 measured_lab_num_hsc = data_lab_number(:,1+clu_hsc);
@@ -75,16 +73,12 @@ start(size(M,1)+(n_clu+1)*2 +3 : end-2) = -4;
 stop([36 37]+44) = 0.02;
 
 
-
 options=optimset('Display','Iter','TolX',1e-8,'TolFun',1e-8,'MaxFunEvals', 300000,'MaxIter',60000);
-
 
 
 data2=dlmread(name_best);
 
 guess=data2(1:number_parameters);
-
-
 
 
 [theta,chisq,~,flag]=lsqnonlin(@fitFun,guess(:),start,stop,options);
@@ -110,20 +104,16 @@ dlmwrite('bootstrap_simulations.txt',[theta;chisq;flag]','-append');
         end
         
         
-        
         p = theta(size(M,1)+(n_clu+1)*2 +3 : end-2);
         
         p = [p(1:20);sum(d(21,:));p(21:end)];
         
         
-        
         r = theta(end-1);
         K = theta(end);
         
-        
-        
+
         k = sum(d,2)-p;
-        
         
         
         % solv lab
@@ -134,8 +124,7 @@ dlmwrite('bootstrap_simulations.txt',[theta;chisq;flag]','-append');
         
         
         model_lab = deval(sol_lab,time)';
-        
-        
+
         
         model_lab_hsc = model_lab(:,clu_hsc) + model_lab(:,n_clu + 1) + model_lab(:,n_clu + 2);
         
@@ -151,11 +140,8 @@ dlmwrite('bootstrap_simulations.txt',[theta;chisq;flag]','-append');
         
         model_neg_hsc = model_neg(:,clu_hsc) + model_neg(:,n_clu + 1) + model_neg(:,n_clu + 2);
         
-        
         %
-        
-        
-        
+
         model_lab(:,clu_hsc) = model_lab_hsc;
         
         model_neg(:,clu_hsc) = model_neg_hsc;
@@ -168,7 +154,6 @@ dlmwrite('bootstrap_simulations.txt',[theta;chisq;flag]','-append');
         model_neg(:,n_clu+1:end) = [];
         
         
-        
         %
         
         model_lab = model_lab ./ repmat(model_lab(:,clu_hsc),1,n_clu);
@@ -179,10 +164,7 @@ dlmwrite('bootstrap_simulations.txt',[theta;chisq;flag]','-append');
         model_neg(:,clu_hsc) = [];
         
         function dxdt = ODE(~,x)
-            
-            
-            
-            
+
             dxdt = d' * x  - k .* x;
             
             xx = x(1)+x(21)+x(22);
@@ -192,8 +174,6 @@ dlmwrite('bootstrap_simulations.txt',[theta;chisq;flag]','-append');
         end
         
         
-        
-        
         model = [model_lab(:); model_neg(:); model_lab_hsc; model_neg_hsc;model_tip];
         
         
@@ -201,7 +181,6 @@ dlmwrite('bootstrap_simulations.txt',[theta;chisq;flag]','-append');
         
         
     end
-
 
 
 end

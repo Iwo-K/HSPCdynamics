@@ -3,22 +3,14 @@ function output = create_input_bootstrap_cluster_size_relative_to_hsc
 
 dir_data = '../../procdata/05script/';
 
-
-
 data = readtable([dir_data 'model_input_tomneg.csv']);
 
 clu_hsc = 0 + 1;
 data_rid = data{2:end,2:21};
 
-
-
 n_clusters = size(data_rid,2);
 
-
-
-
 time = str2double(data{2:end,25});
-
 
 unique_time = unique(time);
 n_tp = length(time);
@@ -53,8 +45,6 @@ for j = 1:n_utp
     
     
 end
-
-
 
 pv_t = sum_iter/(n_tp-length(unique_time));
 

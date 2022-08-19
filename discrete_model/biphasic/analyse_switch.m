@@ -2,9 +2,7 @@ function analyse_switch
 
 data = dlmread('./output/profile_likelihood/bounds_switch.txt');
 
-
 data(1:44,:) = [];
-
 
 %% differentiation
 
@@ -46,9 +44,6 @@ label={'0b-4',...
     '0a-0b',...
     '0a-0c'};
 
-
-
-
 figure(9)
 clf
 
@@ -89,8 +84,6 @@ legend([l1,l2],'Phase I','Phase II')
 set(gcf, 'PaperUnits', 'centimeters');
 exportfig(gcf,'./figures/diff_rates_biphasic.eps','FontMode', 'fixed','Fontsize',6,'color', 'cmyk','width', 8,'height',11,'Renderer','painters','Lockaxes',0);%
 
-
-
 %% proliferation
 
 label={'0b',...
@@ -129,23 +122,16 @@ for i = 38:58
     xpos = data(i,3) - best;
     
     l1 = plot(best,i-37,'ob','markerfacecolor','b', 'MarkerSize', 2);
-%     s1 = scatter(best,i-37, 20,'blue', 'filled');
-%     s1 = scatter(best,i-37, 20, 'MarkerFaceColor','b','MarkerEdgeColor','b', 'MarkerFaceAlpha',.2,'MarkerEdgeAlpha',.2)
-    
+
     e1 = errorbar(best,i-37,xneg,xpos,'horizontal','color','b', 'LineWidth', 0.15, 'Capsize', 1,  'MarkerFaceColor', 'b', 'MarkerSize', 0.25);
-%     set([e1.Bar, e1.Line], 'ColorType', 'truecoloralpha', 'ColorData', [e1.Line.ColorData(1:3); 255*0.5]);
 
     best = data(i+60,2);
     xneg = best - data(i+60,4);
     xpos = data(i+60,3) - best;
     
     l2 = plot(best,i-37,'or','markerfacecolor','r', 'MarkerSize', 2);
-%     s2 = scatter(best,i-37, 20,'red', 'filled');
-%     s2 = scatter(best,i-37, 20, 'MarkerFaceColor','r','MarkerEdgeColor','r', 'MarkerFaceAlpha',.2,'MarkerEdgeAlpha',.2)
 
     e2 = errorbar(best,i-37,xneg,xpos,'horizontal','color','r', 'LineWidth', 0.15, 'Capsize', 1,  'MarkerFaceColor', 'r', 'MarkerSize', 0.25);
-%     set([e2.Bar, e2.Line], 'ColorType', 'truecoloralpha', 'ColorData',
-%     [e2.Line.ColorData(1:3); 255*0.5]); 
 end
 
 
@@ -165,7 +151,6 @@ exportfig(gcf,'./figures/netprolif_rates_biphasic.eps','FontMode', 'fixed','Font
 
 return
 
-%% the other 2 rates ???
 
 figure(2)
 clf

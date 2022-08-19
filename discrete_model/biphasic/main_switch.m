@@ -1,8 +1,6 @@
 function main_switch
 %% general info
 
-% dir = 'procdata/05script/'
-
 dir = '../input/';
 
 name_best = './output/best_switch.txt';
@@ -15,7 +13,6 @@ clu_hsc = 0+1;
 
 sp = 4; %switching point
 %% read data
-
 
 data_lab_rel = dlmread([dir 'input_lab_rel_hsc_pv.txt']);
 data_lab_number = dlmread([dir 'input_lab_num_tot_nodivide.txt']);
@@ -45,7 +42,6 @@ errors_cluster_size = errors_cluster_size_temp;
 errors_cluster_size(:,clu_hsc) = [];
 
 
-
 measured_lab_num_hsc = data_lab_number(:,1+clu_hsc);
 errors_lab_num_hsc = data_lab_number(:,1+clu_hsc+n_clu);
 measured_neg_num_hsc = data_neg_number(:,1+clu_hsc);
@@ -62,8 +58,6 @@ M = create_differentiation_matrix(cluster_names,n_clu);
 %% how many parameters
 
 number_parameters = size(M,1) *2 + (n_clu + 2) *2 + (n_clu+1)*2 +4;
-
-
 
 %% optimisation
 
@@ -111,21 +105,9 @@ if chisq<chibest
     
 end
 
-% vec = thetaRes(45:103)-thetaRes(105:163);
-% 
-% sort(vec)
-
-% [a b] = min(thetaRes(45:103)-thetaRes(105:163))
-% 
-% return
-
-
-
 %% cost function
     function result=fitFun(theta)
-        
-        
-        
+
         
         I_neg = theta(1:22);
         
@@ -153,9 +135,7 @@ end
         K = theta(104); % carrying capacity
         
         
-        
         k = sum(d,2)-p;
-        
         
         
         % solv lab
@@ -175,10 +155,8 @@ end
         model_neg1 = deval(sol_neg1,time(1:sp))';
         
         
-        
         % 2
-        
-        
+
         d = zeros(n_clu+2,n_clu+2);% differentiation
         
         
@@ -187,7 +165,6 @@ end
             d(M(index,1),M(index,2)) = theta(index+104);
             
         end
-        
         
         
         p = theta(142:162);
@@ -200,11 +177,10 @@ end
         K = theta(164); % carrying capacity
         
         
-        
         k = sum(d,2)-p;
         
         %
-        
+
         
         l02 = model_lab1(end,:);
         
@@ -344,70 +320,6 @@ model_lab(:,n_clu+1:end) = [];
 
 model_lab = model_lab ./ repmat(model_lab(:,clu_hsc),1,n_clu);
 model_neg = model_neg ./ repmat(model_neg(:,clu_hsc),1,n_clu);
-
-
-
-
-%% number hsc over time
-
-% 
-% figure(1001)
-% clf
-% 
-% subplot(1,3,1)
-% 
-% hold on
-% 
-% 
-% errorbar(time,measured_lab_num_hsc,errors_lab_num_hsc, 'ob', 'MarkerFaceColor', 'b')
-% 
-% plot(t_plot,model_lab_hsc,'k','linewidth',4)
-% 
-% 
-% 
-% xlabel('time (d)')
-% title('real lab number clu 0')
-% 
-% legend('data','model','location','northwest')
-% 
-% 
-% %
-% 
-% subplot(1,3,2)
-% 
-% hold on
-% 
-% 
-% errorbar(time,measured_neg_num_hsc,errors_neg_num_hsc, 'ob', 'MarkerFaceColor', 'b')
-% 
-% plot(t_plot,model_neg_hsc,'k','linewidth',4)
-% 
-% 
-% 
-% xlabel('time (d)')
-% title('real neg number clu 0')
-% 
-% legend('data','model','location','northwest')
-% 
-% 
-% subplot(1,3,3)
-% 
-% hold on
-% 
-% 
-% errorbar(time,ones(9,1)*1000,ones(9,1)*500, 'ob', 'MarkerFaceColor', 'b')
-% 
-% plot(t_plot,model_neg_save(:,1),'r','linewidth',4)
-% plot(t_plot,model_neg_save(:,21),'k','linewidth',4)
-% plot(t_plot,model_neg_save(:,22),'b','linewidth',4)
-% 
-% legend('data','0','30','40','location','northwest')
-% 
-% 
-% xlabel('time (d)')
-% title('real neg number clu 0')
-% 
-% set(gca, 'yscale','log')
 
 
 %%

@@ -22,13 +22,10 @@ number_parameters = size(M,1) + (n_clu + 1) *3 +4;
 
 %% generate curves
 
-
-
 data2 = dlmread(name_best);
 
 theta = data2(1:number_parameters);
 theta = theta(:);
-
 
 %
 
@@ -57,12 +54,7 @@ r = theta(end-1); % logistic parameter
 K = theta(end); % carrying capacity
 
 
-
 k = sum(d,2)-p;
-
-
-
-
 
 % solv tot
 
@@ -73,8 +65,6 @@ sol_tot_1 = ode45(@ODE, [1, 270], I_neg);
 I_neg(vec_clu) = 0;
 
 sol_tot_0 = ode45(@ODE, [1, 270], I_neg);
-
-
 
 
 % ODE system
@@ -91,16 +81,9 @@ sol_tot_0 = ode45(@ODE, [1, 270], I_neg);
     end
 
 
-
-
-
-
 %% plot
 
 t_plot = 1:270;
-
-
-
 
 
 model_tot1 = deval(sol_tot_1, t_plot)';

@@ -1,4 +1,4 @@
-function C7_generate_bounds
+function C2_generate_bounds
 
 data = dlmread('bootstrap_simulations.txt');
 size(data)
@@ -6,7 +6,6 @@ data(data(:,end) == 0,:) = [];
 size(data)
 
 dir = '../input/';
-
 
 cluster_names = [0:12,14,16,20,24,25,26,28];
 
@@ -95,8 +94,6 @@ for i = 1:ld
         r = theta(end-1); % logistic parameter
         K = theta(end); % carrying capacity
         
-        
-        
         k = sum(d,2)-p;
     
     
@@ -109,8 +106,7 @@ for i = 1:ld
     model_lab = deval(sol_lab,t_plot)';
     
     model_lab_hsc = model_lab(:,clu_hsc) + model_lab(:,n_clu + 1) + model_lab(:,n_clu + 2);
-    
-    
+
     
     % solv neg
     
@@ -123,20 +119,15 @@ for i = 1:ld
     
     %
     
-    
-    
     model_lab(:,clu_hsc) = model_lab_hsc;
     model_neg(:,clu_hsc) = model_neg_hsc;
     
-    
-    
+
     %
     
     model_lab(:,n_clu+1:end) = [];
     
     model_neg(:,n_clu+1:end) = [];
-    
-    
     
     %
     
@@ -151,8 +142,6 @@ for i = 1:ld
     
     model_neg_store(i,:,:) = model_neg;
     %
-    
-    
     
     
     model_lab_hsc_store(i,:) = model_lab_hsc;
@@ -193,17 +182,9 @@ for ii = 1:19
     X = [t_plot';flipud(t_plot')]';
     Y = [model_up;flipud(model_down)]';
     
-    
-    
-    
-    
+
     fill(X,Y,'b','facecolor',[1 1 1]*0.8,'edgecolor',[1 1 1]*0.8)
     
-    
-    
-    %     plot(t_plot, model_up, 'r', 'Linewidth', 2)
-    %     plot(t_plot, model_down, 'b', 'Linewidth', 2)
-    %
     plot(bestmodel_lab(:,1),bestmodel_lab(:,ii+2), 'r', 'Linewidth', 1.2)
     
     errorbar(time, measured_lab_rel(:,ii+1), errors_lab_rel(:,ii+1), 'ob', 'LineWidth', 0.25, 'Capsize', 3,  'MarkerFaceColor', 'b', 'MarkerSize', 3')
@@ -233,8 +214,6 @@ exportfig(gcf,'./figures/lab_freq_bootstrap.eps','FontMode', 'fixed','Fontsize',
 
 %%
 
-
-
 figure(98)
 clf
 
@@ -252,14 +231,11 @@ for ii = 1:19
     X = [t_plot';flipud(t_plot')]';
     Y = [model_up;flipud(model_down)]';
     
-    
-    
+
     fill(X,Y,'b','facecolor',[1 1 1]*0.8,'edgecolor',[1 1 1]*0.8)
     
     
     plot(bestmodel_neg(:,1),bestmodel_neg(:,ii+2), 'r', 'Linewidth', 1.2)
-    
-    
     
     errorbar(time, measured_cluster_size(:,ii+1), errors_cluster_size(:,ii+1), 'ob', 'LineWidth', 0.25, 'Capsize', 3,  'MarkerFaceColor', 'b', 'MarkerSize', 3)
     
@@ -310,9 +286,6 @@ hold on
     plot(bestmodel_lab_hsc(:,1),bestmodel_lab_hsc(:,2), 'r', 'Linewidth', 1)
 
 errorbar(time,measured_lab_num_hsc,errors_lab_num_hsc, 'ob', 'LineWidth', 0.25, 'Capsize', 3,  'MarkerFaceColor', 'b', 'MarkerSize', 3)
-
-
-
 
 xlabel('time (days)')
 ylabel ('No of labelled cells')

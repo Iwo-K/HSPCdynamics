@@ -1,4 +1,4 @@
-function prepare_input_transplantation_propagate_error
+function C4_prepare_input_transplantation_propagate_error
 %% read data
 
 input_dir = '../../procdata/07script/';
@@ -6,8 +6,6 @@ input_dir = '../../procdata/07script/';
 data_df = readtable([input_dir 'tx_cellnos_permouse.csv'],'ReadRowNames',true);
 data  = data_df{3:end-1,1:end-3};
 l_m = size(data,1);
-
-
 
 n(1) = sum(contains(data_df.Properties.VariableNames,'1Day'));
 n(2) = sum(contains(data_df.Properties.VariableNames,'3Day'));
@@ -30,12 +28,9 @@ vec_time = [ones(n_clusters,1);ones(n_clusters,1)*3;ones(n_clusters,1)*5;ones(n_
 mat_all = [vec_time, vec_all];
 
 
-
 vec_time = [ones(n(1),1);ones(n(2),1)*3;ones(n(3),1)*5;ones(n(4),1)*7];
 
 mat = [vec_time,leiden_clusters'];
-
-
 
 
 v = ismember(mat_all,mat,'rows');
@@ -43,7 +38,6 @@ v = ismember(mat_all,mat,'rows');
 data_all = zeros(l_m,n_clusters*4);
 
 data_all(:,v) = data;
-
 
 
 for tp = 1:4
@@ -54,7 +48,6 @@ end
 index_day_bool = index_day>0;
 
 n_mice_time = sum(index_day_bool);
-
 
 
 %% propagate error

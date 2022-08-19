@@ -1,7 +1,6 @@
 function C5_waiting_times
 %% general info
 
-
 dir = './input/';
 
 name_best = 'output/best.txt';
@@ -72,9 +71,6 @@ k = sum(d,2)-p;
 
 sol_neg = ode45(@ODE, [time(1), 270], I_neg);
 
-
-
-
     function dxdt = ODE(~,x)
         
         
@@ -83,33 +79,17 @@ sol_neg = ode45(@ODE, [time(1), 270], I_neg);
         xx = x(1)+x(21)+x(22);
         
         dxdt(21) = r*xx*(1-xx/K) - (dxdt(1)+dxdt(22));
-        
-        
-        
+
         
     end
-
-
-
-
-
 
 %% plot
 
 t_plot = time(1):0.5:270;
 
-
-
 model_neg = deval(sol_neg, t_plot)';
 
-
-
-
 model_neg_hsc = model_neg(:,clu_hsc) + model_neg(:,n_clu+1) + model_neg(:,n_clu+2);
-
-
-
-
 
 model_neg(:,clu_hsc) = model_neg_hsc;
 
@@ -160,9 +140,5 @@ for ii = 1:n_clu
     
     set(gca,'xscale','log')
 end
-%
-% set(gcf, 'PaperUnits', 'centimeters');
-% exportfig(gcf,'cluster_size.eps','FontMode', 'fixed','Fontsize',13,'color', 'cmyk','width',20,'height',15,'Renderer','painters','Lockaxes',0);%
-%
 
 end

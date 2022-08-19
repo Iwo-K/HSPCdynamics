@@ -97,9 +97,6 @@ start_base(size(M,1)+(n_clu+1)*2 +3 : end-2) = -4;
 stop_base([36 37]+44) = 0.02;
 
 
-
-
-
 for lookAt = 1:number_parameters
     
     start = start_base;
@@ -107,8 +104,7 @@ for lookAt = 1:number_parameters
     
     stop = stop_base;
     stop(lookAt)=[];
-    
-    
+
     fName1 = ['./output/profile_likelihood/r_',num2str(lookAt),'tot.txt'];
     
     fName2 = ['./output/profile_likelihood/r_',num2str(lookAt),'.txt'];
@@ -141,9 +137,7 @@ for lookAt = 1:number_parameters
             
         end
         
-        
-        
-        
+
         bestFitParameter = best(lookAt);
         
         step_down = abs(bestFitParameter)/steps;
@@ -169,16 +163,12 @@ for lookAt = 1:number_parameters
             
             thetaStart(lookAt)=bestFitParameter;
             
-            
-            
-            
-            
+
             [reducedResult,chisq]=lsqnonlin(@fitFun,thetaStart(~boolFixed),start,stop,options);
             bestFitParameter= bestFitParameter-step_down;
             theta=zeros(1,number_parameters);
             theta(boolFixed)=thetaStart(boolFixed);
-            
-            
+
             
             theta(~boolFixed) = reducedResult;
             
@@ -232,9 +222,7 @@ for lookAt = 1:number_parameters
             
             
         end
-        
-        
-       
+
         
         bestFitParameter=   best(lookAt);
         
@@ -258,9 +246,7 @@ for lookAt = 1:number_parameters
             
             thetaStart=best;
             
-            
-            
-            
+
             thetaStart(lookAt)=bestFitParameter;
             
             [reducedResult,chisq]=lsqnonlin(@fitFun,thetaStart(~boolFixed),start,stop,options);
@@ -298,8 +284,6 @@ for lookAt = 1:number_parameters
         
         
     end
-    
-    
     
     
 end
@@ -417,6 +401,5 @@ end
         result = (measured-model)./errors;
         
     end
-
 
 end

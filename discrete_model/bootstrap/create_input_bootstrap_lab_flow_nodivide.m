@@ -25,15 +25,12 @@ n_tp = length(time);
 
 n_utp = length(unique_time);
 
-
-
 %% averages over time
 
 
 means = zeros(n_clusters,n_utp);
 err_pv = zeros(n_clusters,n_utp);
 sum_iter = zeros(1,n_clusters);
-
 
 
 data_norm = data_rid ./ repmat(str2double(data{:,end}),1,n_clusters) .* repmat(str2double(data{:,23}),1,n_clusters);
@@ -48,20 +45,14 @@ for j = 1:n_utp
    
   new_set = ceil(rand(l_dr,1)*l_dr);
   
-%    new_set = 1:l_dr;
   data_round = data_round(new_set,:);
 
     
-    
-    
-
     means(:,j) = nanmean(data_round)';
     
     sum_iter = sum_iter + nanstd(data_round,1).^2*(l_dr-1);
   
 end
-
-
 
 
 pv_t = sum_iter/(n_tp-length(unique_time));

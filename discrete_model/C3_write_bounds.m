@@ -1,6 +1,5 @@
 function C3_write_bounds
 
-
 name_best = 'output/best.txt';
 
 

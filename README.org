@@ -65,7 +65,7 @@ Scripts C1_bootstrap.m and C2_generate_bounds.m read bootstrap simulations and e
 *** Prediction for the transplantation data
 Calculated in scripts C4_prepare_input_transplantation_propagate_error.m and C6_tx_estimation_bootstrap.m
 
-* Continuous
+* Continuous model
 Code uses the pseudodynamics framework devloped by Fabian Theis' lab ([[https://doi.org/10.1038/s41587-019-0088-0][paper]], [[https://github.com/theislab/pseudodynamics][Github]]).
 Code requiers a specific versiono of matlab: r2017b and gcc: gcc-4.9.4-gcc-4.8.5-3sdjf2c
 works only with these specific versions of matlab (r2017b) and gcc (4.9.4)

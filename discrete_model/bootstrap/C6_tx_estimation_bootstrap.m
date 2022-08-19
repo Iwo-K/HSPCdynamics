@@ -46,12 +46,10 @@ M = create_differentiation_matrix(cluster_names,n_clu);
     end
     
     
-    
     p = theta(size(M,1)+(n_clu+1)*2 +3 : end-2);
     
     p = [p(1:20);sum(d(21,:));p(21:end)];
-    
-    
+
     
     r = theta(end-1);
     K = theta(end);
@@ -101,16 +99,13 @@ for i = 1:ld
     end
     
     
-    
     p = theta(size(M,1)+(n_clu+1)*2 +3 : end-2);
     
     p = [p(1:20);sum(d(21,:));p(21:end)];
     
     
-    
     r = theta(end-1);
     K = theta(end);
-    
     
     
     k = sum(d,2)-p;
@@ -145,7 +140,6 @@ for ii = 1:n_clu
     hold on
     
     
-    
     model_u = reshape(model_up(1,:,ii),size(model_up,2),1);
     model_d = reshape(model_down(1,:,ii),size(model_down,2),1);
     
@@ -155,8 +149,6 @@ for ii = 1:n_clu
     
     
     plot(time, model3_best(:, ii), 'r', 'Linewidth', 1)
-%     plot([3 5 7], data_norm([2,3,4], ii), 'ob', 'MarkerFaceColor', 'b')
-%     errorbar([3 5 7], data_norm([2,3,4], ii), err_data_norm([2,3,4], ii), 'ob', 'MarkerFaceColor', 'b')
     errorbar([3 5 7], data_norm([2,3,4], ii), err_data_norm([2,3,4], ii),  'ob', 'LineWidth', 0.25, 'Capsize', 3,  'MarkerFaceColor', 'b', 'MarkerSize', 3)
 
 
@@ -178,7 +170,6 @@ end
 
 set(gcf, 'PaperUnits', 'centimeters');
 exportfig(gcf,'./figures/transplant_bootstrap.eps','FontMode', 'fixed','Fontsize',6,'color', 'cmyk','width',22,'height',15,'Renderer','painters','Lockaxes',0);%
-% exportfig(gcf,'./figures/transplant_bootstrap_larger.eps','FontMode', 'fixed','Fontsize', 7,'color', 'cmyk','width',22,'height',22,'Renderer','painters','Lockaxes',0);%
 
 %% ODE
 

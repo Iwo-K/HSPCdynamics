@@ -1,6 +1,5 @@
 function M = create_differentiation_matrix(cluster_names,n_clu)
 
-
 % from cluster 0
 
 M(1,:) = [find(cluster_names == 0),find(cluster_names == 4)];
