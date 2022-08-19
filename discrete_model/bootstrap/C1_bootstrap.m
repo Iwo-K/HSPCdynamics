@@ -1,10 +1,8 @@
 function C5_bootstrap(n)
 %% general info
 rng(n*now)
-% dir = 'procdata/05script/'
 
-
-name_best = 'best.txt';
+name_best = '../output/best.txt';
 
 cluster_names = [0:12,14,16,20,24,25,26,28];
 

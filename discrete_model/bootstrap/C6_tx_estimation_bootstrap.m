@@ -7,8 +7,6 @@ data_boot(data_boot(:,end) == 0,:) = [];
 
 time = 3:0.1:8;
 
-
-
 %%
 input_dir = '../../procdata/07script/';
 cluster_names = [0:12,14,16,20,24,25,26,28];
@@ -24,7 +22,7 @@ err_data_norm = dlmread('./input_tx_boot_err_prop.txt');
 
 
 % Loading cluster sizes
-best = dlmread('best.txt');
+best = dlmread('../output/best.txt');
 best(end) = [];
 clu_size = best(1:22);
 hsc_totsize = sum(clu_size([clu_hsc n_clu+1 n_clu+2]));
@@ -36,9 +34,6 @@ cl40_relsize = clu_size(n_clu + 2) / hsc_totsize;
 M = create_differentiation_matrix(cluster_names,n_clu);
 
 %% define parameters
-
-
-    
     theta = best(:);
     
     d = zeros(n_clu+2,n_clu+2);
@@ -85,12 +80,7 @@ model3_best(:,clu_hsc) = hsc;
 model3_best(:,n_clu+1:end) = [];
 model3_best = model3_best ./ repmat(model3_best(:,clu_hsc),1,n_clu);
 
-
-
 %%
-
-
-
 ld = size(data_boot,1);
 
 for i = 1:ld
@@ -134,9 +124,6 @@ for i = 1:ld
     model3(:,clu_hsc) = hsc;
     model3(:,n_clu+1:end) = [];
     model3_store(i,:,:) = model3 ./ repmat(model3(:,clu_hsc),1,n_clu);
-    
-    
-    
     
 end
 

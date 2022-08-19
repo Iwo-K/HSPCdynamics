@@ -5,8 +5,6 @@ size(data)
 data(data(:,end) == 0,:) = [];
 size(data)
 
-
-
 dir = '../input/';
 
 

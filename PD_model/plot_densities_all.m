@@ -1,8 +1,5 @@
 function plot_densities_all
 
-
-
-
 vec = 0:1/298:1;
 n_grid = 300;
 x = linspace(0,1,n_grid);
@@ -87,14 +84,6 @@ for time = 1:9
         end
         
     end
-    
-    
-    %     ylabel('density')
-    
-    
-    
-    
-    %%
     
 end
 

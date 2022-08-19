@@ -29,14 +29,54 @@ cd HSPCdynamics
 This script will create several directories to hold output files from respective analysis script, e.g. figures or processed data. Additionally, the .R scripts will be converted into .html reports and .py scripts into Jupyter/IPython notebooks, to allow easy inspection.
 
 * Discrete model
+** create_input directory
+Prior to running the analysis the necessary input files are generated using the scripts in this directory.
+Scripts read in data from the upstream scRNA-Seq analysis.
+** Scripts in the main directory
+Generates the main discrete model of HSPC dynamics, with the following scripts.
+For convenience we provide our parameter values in the ~output/best.txt~ file (and with bounds in ~output/bouds.txt~), which are recognised by the matlab scripts.
+
+*** C1main.m
+This file finds the best fit for the discrete model, plots and saves the figures, saves the estimated parameters and the model predictions.
+Since it takes many iterations and initial guesses to find the best fit, it is currently set to read the best fit already computed.
+To start from scratch, delete the best.txt file in the input folder and launch the main many times from differnt starts with your favourite multistart launcher (e.g., PESTO) or just change lines 186 and 174.
+
+*** C2_profile_likhelihood.m
+This file computes profiles for each parameter upon blocking the parameter values one at the time and then reoptimizing the remaining parameters.
+
+*** C3_compute_bounds.m
+Reads the previously computed profiles to extract lower and upper bounds in the file bounds.txt.
+
+*** C4_switch_off.m
+Simulates the system upon switching off any population, passed by user as a vector of cluster label, and saves the figure in the figure folder with corresponding label.
+
+*** C5_waiting_times.m
+Calculated time until 1 cells is accumulated in the chosen cluster after initialisation with 1 cell in the cluster(s) 0. In the article we refere to this measure as the journey time.
+
+** biphasic directory
+Generated the bi-phasic model of HSPC dynamics. This means we specified one set of parameters (differenitation and net proliferation rates) for the first 4 time-point (the 'recovery' phase) and another set for remaining time-points (the 'homeostasis' phase).
+
+** bootstrap directory
+Provides confidence intervals for the discrete model (estimated using bootstrap) and predicted relative cell numbers for the transplantation data (from [[https://www.nature.com/articles/s41556-020-0512-1][Dong et al. 2020]]).
+
+*** Confidence intervals for the discrete models
+Scripts C1_bootstrap.m and C2_generate_bounds.m read bootstrap simulations and estimate 95% confidence intervals for predicted relative cell numbers in each cluster over time.
+
+*** Prediction for the transplantation data
+Calculated in scripts C4_prepare_input_transplantation_propagate_error.m and C6_tx_estimation_bootstrap.m
 
 * Continuous
 Code uses the pseudodynamics framework devloped by Fabian Theis' lab ([[https://doi.org/10.1038/s41587-019-0088-0][paper]], [[https://github.com/theislab/pseudodynamics][Github]]).
 Code requiers a specific versiono of matlab: r2017b and gcc: gcc-4.9.4-gcc-4.8.5-3sdjf2c
 works only with these specific versions of matlab (r2017b) and gcc (4.9.4)
 
-Analys is provided in the PD_model directory, each analyse trajectory in a separate subdirectory.
-* Note:
+Analysis is provided in the PD_model directory, each analyse trajectory in a separate subdirectory.
+Each directory follows the same scheme with scripts numbered according to the order of execution.
+- C1 extracts the trajectory and cell numbers
+- C2-5 prepare data and fits the model
+- C6-8 plot and write the data
+
+* Note on cluster numbers
 In the publication clusters were relabelled with consecutive numbers, this repository uses the original numbers, with the mapping provided below:
 
 #+CAPTION: Cluster name mapping
