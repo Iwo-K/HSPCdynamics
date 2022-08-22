@@ -13,6 +13,9 @@
 #     name: ir
 # ---
 
+# %% [markdown]
+# # Differential expression analysis for trajectories
+#
 # %% tags=[]
 library(tradeSeq)
 library(anndata)
@@ -34,17 +37,46 @@ BPPARAM$workers <- 4
 theme_paper = theme_bw(base_size = 7, base_family = "",
                        base_line_size = 0.5, base_rect_size = 0.5)
 theme_set(theme_paper)
-
 DIR_DE = './DE/'
 
-
 # %% tags=[]
+# Some handy functions
 adata_to_sce = function(adata){
     require(SingleCellExperiment)
     sce = SingleCellExperiment(assays = List(counts = t(adata$X)),
                                colData = adata$obs,
                                rowData = adata$var,
                                reducedDims = adata$obsm)
+}
+
+plot_cellparams = function(sce, drift_range, growth_range, ratio, save='test.pdf'){
+    celldens = ggplot(data.frame(colData(sce)), aes(x=dpt_pseudotime)) +
+      geom_density()
+
+    drift = ggplot(data.frame(colData(sce)), aes(x = dpt_pseudotime, y = drift)) +
+      geom_line() +
+      geom_vline(xintercept = drift_range, alpha = 0.5, color='blue')
+
+
+    growth = ggplot(data.frame(colData(sce)), aes(x = dpt_pseudotime, y = growth)) +
+      geom_line() +
+      geom_vline(xintercept = growth_range, alpha = 0.5, color='red')
+
+    comb = ggplot(data.frame(colData(sce)), aes(x = dpt_pseudotime)) +
+      geom_line(aes(x = dpt_pseudotime, y = growth), color = 'red', size = 0.8) +
+      geom_line(aes(x = dpt_pseudotime, y = drift*ratio), color = 'blue', size = 0.8) +
+      scale_y_continuous(name = 'Net prolif.', sec.axis = sec_axis(~.*1/ratio, name="Diff. rate")) +
+      geom_vline(xintercept = dptrange_drift, alpha = 0.5, color='blue', size=0.5, linetype='dashed') +
+      geom_vline(xintercept = dptrange_growth, alpha = 0.5, color='red', size=0.5, linetype='dashed') +
+      theme(axis.text.y.right = element_text(color = "blue"),
+        axis.title.y.right = element_text(color = "blue"),
+        axis.text.y.left = element_text(color = "red"),
+        axis.title.y.left = element_text(color = "red"))
+
+    pdf(save, width=8/2.54, height=12/2.54)
+    multiplot(celldens, drift, growth, comb)
+    dev.off()
+    multiplot(celldens, drift, growth, comb)
 }
 
 # %% tags=[]
@@ -74,38 +106,6 @@ colData(mk) = cbind(colData(mk), data.frame(drift = mkpar$drift,
 plotReducedDim(mk, dimred = "X_umap_2d", colour_by = "drift")
 
 # %% tags=[]
-plot_cellparams = function(sce, drift_range, growth_range, ratio, save='test.pdf'){
-    celldens = ggplot(data.frame(colData(sce)), aes(x=dpt_pseudotime)) + 
-      geom_density() 
-
-    drift = ggplot(data.frame(colData(sce)), aes(x = dpt_pseudotime, y = drift)) +
-      geom_line() +
-      geom_vline(xintercept = drift_range, alpha = 0.5, color='blue')
-
-
-    growth = ggplot(data.frame(colData(sce)), aes(x = dpt_pseudotime, y = growth)) +
-      geom_line() +
-      geom_vline(xintercept = growth_range, alpha = 0.5, color='red')
-
-    comb = ggplot(data.frame(colData(sce)), aes(x = dpt_pseudotime)) +
-      geom_line(aes(x = dpt_pseudotime, y = growth), color = 'red', size = 0.8) +
-      geom_line(aes(x = dpt_pseudotime, y = drift*ratio), color = 'blue', size = 0.8) +
-      scale_y_continuous(name = 'Net prolif.', sec.axis = sec_axis(~.*1/ratio, name="Diff. rate")) + 
-      geom_vline(xintercept = dptrange_drift, alpha = 0.5, color='blue', size=0.5, linetype='dashed') + 
-      geom_vline(xintercept = dptrange_growth, alpha = 0.5, color='red', size=0.5, linetype='dashed') +
-      theme(axis.text.y.right = element_text(color = "blue"),
-        axis.title.y.right = element_text(color = "blue"),
-        axis.text.y.left = element_text(color = "red"),
-        axis.title.y.left = element_text(color = "red"))
-
-    pdf(save, width=8/2.54, height=12/2.54)
-    multiplot(celldens, drift, growth, comb)
-    dev.off()
-    multiplot(celldens, drift, growth, comb)
-    }
-
-
-# %% tags=[]
 dptrange_drift = c(0.0125, 0.0375)
 dptrange_growth = c(0.01, 0.028)
 plot_cellparams(mk,
@@ -126,7 +126,6 @@ genes = row.names(mk)[tokeep]
 demk1 = run_transitionDE(mk,
                          dpt_col = 'dpt_pseudotime',
                          dpt_range = dptrange_drift,
-#                   genes = c('Actb', 'Pf4', 'Procr', 'Gata1'),
                          genes = genes,
                          allTFs = allTFs,
                          traj_name = 'mk_drift',
@@ -140,7 +139,6 @@ genes = row.names(mk)[tokeep]
 demk2 = run_transitionDE(mk,
                   dpt_col = 'dpt_pseudotime',
                   dpt_range = dptrange_growth,
-#                   genes = c('Actb', 'Pf4', 'Procr', 'Gata1'),
                   genes = genes,
                   allTFs = allTFs,
                   traj_name = 'mk_growth',
@@ -149,7 +147,7 @@ demk2 = run_transitionDE(mk,
                   BPPARAM = BPPARAM)
 
 # %% [markdown]
-# ### Additional figures
+# ### Additional plots for the growth DE
 
 # %%
 # Running enrichment with enrichr
@@ -214,10 +212,6 @@ p2 = ggplot(toplot,
            geom_line() +
            xlab('Pseudotime') + 
            geom_vline(xintercept = dptrange_growth, linetype='dashed', color = 'red')
-#            geom_line(data = as.data.frame(colData(mk)), aes(x = dpt_pseudotime, y=growth*5), color='black', linetype='dashed') +
-#            ylab('Log2(Expression + 1)') + 
-#            scale_y_continuous(name = 'Log2(Counts + 1)', sec.axis = sec_axis(~.*5, name="Net prolif.")) + 
-#            ylim(0, max(log2(toplot$yhat+1)))
 ggsave(paste0(mkdir, '/mk_growth_example_genes.pdf'), p2, height=2, width=4)
 p2
 
@@ -251,7 +245,6 @@ plot_cellparams(neu,
 # %%
 #Excluding SS2 samples to not affect the DE for early DPT
 neu = neu[colData(neu)$data_type != 'SS2',]
-
 neu = logNormCounts(neu)
 
 # %% [markdown]
@@ -264,13 +257,15 @@ genes = row.names(neu)[tokeep]
 deneu1 = run_transitionDE(neu,
                  dpt_col = 'dpt_pseudotime',
                  dpt_range = dptrange_drift,
-#                   genes = c('Actb', 'Elane', 'Ms4a3', 'Mpo'),
                  genes = genes,
                  allTFs = allTFs,
                  nknots = 8,
                  traj_name = 'neu_drift',
                  dir = neudir,
                  BPPARAM = BPPARAM)
+
+# %% [markdown]
+# #### Additional figures
 
 # %% tags=[]
 #Preparing data for plotting
@@ -289,22 +284,13 @@ row.names(yw_scaled) = xtime
 yw_scaled = t(yw_scaled)
 yw_scaled <- t(scale(t(yw_scaled)))
 
-
 #Annotation for heatmaps
 dpt_anno = rep('out', npoints)
 dpt_anno[(xtime > dptrange_drift[1] & xtime < dptrange_drift[2])] = 'in'
 annotation_col = data.frame(region = dpt_anno, row.names=colnames(yw_scaled))
 
-#Heatmap to check the transformation is correct
-# p1 = pheatmap(yw_scaled,
-#               cluster_cols=FALSE,
-#               annotation_col=annotation_col,
-#               fontsize_row=4.5,
-#               treeheight_row=0,
-#               show_colnames=FALSE)
-
 # %% [markdown]
-# #### Transcription factors
+# ##### Plotting transcription factors
 
 # %% tags=[]
 TFs = deneu1$desig[row.names(deneu1$desig) %in% allTFs,]
@@ -357,28 +343,13 @@ tfplots = cowplot::plot_grid(plotlist = plotlist, align='v')
 ggsave(paste0(neudir, '/neu_drift_TFplots.pdf'), tfplots, height= 4, width=7)
 tfplots
 
-#Note on Dach1, it's inversely correlated iwth lymphoid potential, but has no obvious effect on hematopoiesis upon deletion,
-# see paper: A new lymphoid-primed progenitor marked by Dach1 downregulation identified with single cell multi-omics
-
 # %% [markdown]
-# #### Genes associated with neutrophil and monocyte lineages
-
-# %% tags=[]
-#Neutrophil genes
-# genes_toplot = list(Neu_genes = c('Elane', 'Cst7', 'Ms4a3', 'Cebpe', 'Fcgr3', 'S100A11', 'Mpo', 'Prtn3', 'Gfi1', #Early neutrophil genes
-#              'S100a8', 'Clec4a2', 'Wfdc21', 'G0S2'), #Late neutrohil genes
-#              Transition_genes = c('Irf8', 'Flt3', 'Cd34', 'Ikzf2', 'Cxcr2', 'Homer2', 'Slc22a3', 'Ctsh'), #handchosen transient genes from the heatmap
-#              Mono_DC_genes = c('Irf8', 'Ctsh', 'Lgals1'), #Irf8, Ctsh are monocyting/DC genes
-#              Mono_vs_Neu = c('Gfi1', 'Irf8')) #LeeGrimes paper poses these two factors as opposing forces and a binary outcome in fate choice
+# ##### Genes associated with neutrophil and monocyte lineages
 
 genes_toplot = list(Neu_genes = c('Elane', 'Cst7', 'Cebpe', 'Fcgr3', 'Prtn3', 'Gfi1', #Early neutrophil genes
              'S100a8', 'Clec4a2', 'Wfdc21', 'G0S2'), #Late neutrohil genes
              Transition_genes = c('Irf8', 'Flt3', 'Cd34', 'Ikzf2', 'Cxcr2', 'Slc22a3', 'Ctsh'), #handchosen transient genes from the heatmap
              Lineage_balance = c('Gfi1', 'Irf8', 'Flt3')) #LeeGrimes paper poses these two factors as opposing forces and a binary outcome in fate choice
-
-#From Epigenomic profiling of young and aged HSCs reveals concerted changes during aging that reinforce self-renewal
-#While transplantation showed knockdown of Slc22a3 did not affect engraftment, there were a greater proportion of myeloid cells generated from Slc22a3-knockdown HSCs (Figure 7D).
-#Thus, decreased expression of Slc22a3 may contribute to the myeloid-biased differentiation of old HSCs.
 
 # %% tags=[]
 plotlist2 = list()
@@ -398,15 +369,8 @@ neuplots = cowplot::plot_grid(plotlist = plotlist2, align='v')
 neuplots
 ggsave(paste0(neudir, '/neu_drift_chosengenes.pdf'), neuplots, height= 4, width=7)
 
-
-# plotReducedDim(neu, dimred = "X_umap_2d", colour_by = "Flt3")
-# plotReducedDim(neu, dimred = "X_umap_2d", colour_by = "Irf8")
-# plotReducedDim(neu, dimred = "X_umap_2d", colour_by = "Gfi1")
-
-# %% [markdown]
-# NOTE: it may be useful to plot Gfi1 and Irf8 in the Weinreb2020 bipotent Mono/Neu cells or if it's too sparse find the nearest neighbors in our data and plot it there?
-
 # %%
+# re-plotting to match dimensions in the figure
 blankaxis = theme(axis.text.x = element_blank(),
                               axis.ticks.x = element_blank(),
                               axis.title.x = element_blank())
@@ -414,63 +378,6 @@ neu_combplot = cowplot::plot_grid(plotlist = list(plotlist2[[1]] + blankaxis,
                                                   plotlist[[1]] + blankaxis,
                                                   plotlist[[2]]), ncol = 1, align = 'v')
 ggsave(paste0(neudir, '/neu_drift_neumarkers_TF12.pdf'), neu_combplot, height= 4.82, width=3.5)
-
-# %% [markdown]
-# #### Looking at enriched gene categories
-
-# %%
-# tradeSeq::plotSmoothers(deneu1$sim, assays(deneu1$sim)$counts, gene='Cebpa') + ggtitle('Cebpa') + 
-# geom_vline(xintercept = dptrange_drift, linetype='dashed', color = 'blue')
-
-
-# 'Ly86' %in% row.names(deneu1$sim)
-# 'Ly86' %in% row.names(deneu1$desig)
-# tradeSeq::plotSmoothers(deneu1$sim, assays(deneu1$sim)$counts, gene='Tyrobp')
-
-
-# Running enrichment with enrichr
-# gen = run_enrichr(row.names(deneu1$desig),
-#             gene_sets=c('ChEA_2016', 'TF_Perturbations_Followed_by_Expression', 'ARCHS4_Kinases_Coexp', 'MSigDB_Hallmark_2020'),
-#             figure_prefix=paste0(neudir, '/neu_drift_'))
-
-#Extracting genes from categories of interest
-# myb = gen[gen$Gene_set == 'ChEA_2016' & gen$Term == 'MYB 21317192 ChIP-Seq ERMYB Mouse', 'Genes']
-# myb = str2mouse(myb)
-
-# gata2 = gen[gen$Gene_set == 'ChEA_2016' & gen$Term == 'GATA2 22383799 ChIP-Seq G1ME Mouse', 'Genes']
-# gata2 = str2mouse(gata2)
-
-
-# flt3 = gen[gen$Gene_set == 'ARCHS4_Kinases_Coexp' & gen$Term == 'FLT3 human kinase ARCHS4 coexpression', 'Genes']
-# flt3 = str2vec(flt3)
-
-# pheatmap(yw_scaled[row.names(yw_scaled) %in% il2,],
-#               cluster_cols=FALSE,
-#               annotation_col=annotation_col,
-#               fontsize_row=4.5,
-#               treeheight_row=0,
-#               show_colnames=FALSE)
-
-# %% tags=[]
-#Cross-correlation analysis
-# x = colData(neu)$dpt_pseudotime
-# y = colData(neu)$drift
-# interp = approx(x, y, xout=xtime, n=100)
-
-# z = c()
-# for (i in row.names(yhatw)){
-#     z[i] = ccf(yhatw[i,], interp$y, pl=FALSE)
-#     }
-    
-# x = colData(neu)$dpt_pseudotime
-# y = colData(neu)$drift
-# interp = approx(x, y, xout=xtime, n=100)
-
-# #This would probably be best chosen for the range of interest
-# z = c()
-# for (i in row.names(yhatw)){
-#     z[i] = cor(yhatw[i,], interp$y, pl=FALSE)
-#     }
 
 
 # %% [markdown]
@@ -480,7 +387,6 @@ ggsave(paste0(neudir, '/neu_drift_neumarkers_TF12.pdf'), neu_combplot, height= 4
 deneu2 = run_transitionDE(neu,
                  dpt_col = 'dpt_pseudotime',
                  dpt_range = dptrange_growth,
-#                   genes = c('Actb', 'Elane', 'Ms4a3', 'Mpo'),
                  genes = genes,
                  allTFs = allTFs,         
                  nknots = 8,
@@ -509,8 +415,7 @@ plotReducedDim(ery, dimred = "X_umap_2d", colour_by = "drift")
 plotReducedDim(ery, dimred = "X_umap_2d", colour_by = "growth")
 
 # %% tags=[]
-# dptrange_drift = c(0.11, 0.195) #First try
-dptrange_drift = c(0.09, 0.19) #First try
+dptrange_drift = c(0.09, 0.19)
 dptrange_growth = c(0.22, 0.27)
 plot_cellparams(ery,
                 drift_range = dptrange_drift,
@@ -521,7 +426,6 @@ plot_cellparams(ery,
 # %%
 #Excluding SS2 samples to not affect the DE for early DPT
 ery = ery[colData(ery)$data_type != 'SS2',]
-
 ery = logNormCounts(ery)
 
 # %% [markdown]
@@ -535,7 +439,6 @@ genes = row.names(ery)[tokeep]
 deery1 = run_transitionDE(ery,
                  dpt_col = 'dpt_pseudotime',
                  dpt_range = dptrange_drift,
-#                   genes = c('Actb', 'Elane', 'Ms4a3', 'Mpo'),
                  genes = genes,
                  allTFs = allTFs,
                  nknots = 8,
@@ -544,7 +447,7 @@ deery1 = run_transitionDE(ery,
                  BPPARAM = BPPARAM)
 
 # %% [markdown]
-# ### Additional analysis
+# ### Additional figures
 
 # %% tags=[]
 #Preparing data for plotting
@@ -727,7 +630,6 @@ plot_cellparams(DC,
 # %%
 #Excluding SS2 samples to not affect the DE for early DPT
 DC = DC[colData(DC)$data_type != 'SS2',]
-
 DC = logNormCounts(DC)
 
 # %%
@@ -738,7 +640,6 @@ genes = row.names(DC)[tokeep]
 deDC1 = run_transitionDE(DC,
                  dpt_col = 'dpt_pseudotime',
                  dpt_range = dptrange_drift,
-#                   genes = c('Actb', 'Elane', 'Ms4a3', 'Mpo'),
                  genes = genes,
                  allTFs = allTFs,
                  nknots = 8,
@@ -750,7 +651,6 @@ deDC1 = run_transitionDE(DC,
 deDC2 = run_transitionDE(DC,
                  dpt_col = 'dpt_pseudotime',
                  dpt_range = dptrange_growth,
-#                   genes = c('Actb', 'Elane', 'Ms4a3', 'Mpo'),
                  genes = genes,
                  allTFs = allTFs,        
                  nknots = 8,
@@ -758,85 +658,3 @@ deDC2 = run_transitionDE(DC,
                  dir = DCdir,
                  BPPARAM = BPPARAM)
 
-# %%
-
-# %% [markdown]
-# ## Ly trajectory
-
-# %% tags=[]
-Lydir = paste0(DIR_DE, 'Ly/')
-dir.create(Lydir, recursive=TRUE)
-
-Lypar = fread('./PD_model/clu_16/tables/table_all_parameters_clu_16.csv')
-Ly = data[Lypar$V1, ]
-
-# %% tags=[]
-Ly = adata_to_sce(Ly)
-
-colData(Ly) = cbind(colData(Ly), data.frame(drift = Lypar$drift,
-                                            growth = Lypar$growth,
-                                           dpt_pseudotime = Lypar$dpt_pseudotime))
-
-
-plotReducedDim(Ly, dimred = "X_umap_2d", colour_by = "drift")
-plotReducedDim(Ly, dimred = "X_umap_2d", colour_by = "growth")
-
-# %%
-dptrange_drift = c(0.005, 0.04)
-dptrange_growth = c(0.01, 0.08)
-plot_cellparams(Ly,
-                drift_range = dptrange_drift,
-                growth_range = dptrange_growth,
-                ratio = 100,
-                save=paste0(Lydir, 'Ly_dpt_plots.pdf'))
-
-# %%
-#Excluding SS2 samples to not affect the DE for early DPT
-Ly = Ly[colData(Ly)$data_type != 'SS2',]
-
-Ly = logNormCounts(Ly)
-
-# %%
-source('utils/DE.R')
-tokeep = gene_filter(assays(Ly)$logcounts, min_expr = 0, min_fraction = 0.025, min_meanexpr = 0.05)
-genes = row.names(Ly)[tokeep]
-
-deLy1 = run_transitionDE(Ly,
-                 dpt_col = 'dpt_pseudotime',
-                 dpt_range = dptrange_drift,
-#                   genes = c('Actb', 'Elane', 'Ms4a3', 'Mpo'),
-                 genes = genes,
-                 allTFs = allTFs,
-                 nknots = 6,
-                 traj_name = 'Ly_drift',
-                 dir = Lydir,
-                 BPPARAM = BPPARAM)
-
-# %%
-deLy2 = run_transitionDE(Ly,
-                 dpt_col = 'dpt_pseudotime',
-                 dpt_range = dptrange_growth,
-#                   genes = c('Actb', 'Elane', 'Ms4a3', 'Mpo'),
-                 genes = genes,
-                 allTFs = allTFs,
-                 nknots = 6,
-                 traj_name = 'Ly_growth',
-                 dir = Lydir,
-                 BPPARAM = BPPARAM)
-
-# %% tags=[]
-# dptrange_drift = c(0.0125, 0.0375)
-# mkdens_drift = ggplot(data.frame(colData(mk)), aes(x = dpt_pseudotime)) +
-#   geom_density(size = 1.5) +
-#   geom_line(aes(x = dpt_pseudotime, y = drift*100), color = 'red') +
-#   scale_y_continuous(name = 'cell density', sec.axis = sec_axis(~.*0.01, name="drift Axis")) + 
-#   geom_vline(xintercept = dptrange_drift, alpha = 0.5)
-# mkdens_drift
-
-# dptrange_growth = c(0.01, 0.028)
-# mkdens_growth = ggplot(data.frame(colData(mk)), aes(x = dpt_pseudotime)) +
-#   geom_density(size = 1.5) +
-#   geom_line(aes(x = dpt_pseudotime, y = growth*10), color = 'red') +
-#   scale_y_continuous(name = 'cell density', sec.axis = sec_axis(~.*0.1, name="growth Axis")) + 
-#   geom_vline(xintercept = dptrange_growth, alpha = 0.5)
-# mkdens_growth

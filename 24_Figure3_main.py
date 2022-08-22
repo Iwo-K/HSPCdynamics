@@ -20,7 +20,7 @@
 # !hostname
 
 # %% [markdown]
-# # Figure 3 
+# # Plots for Figure 3
 
 # %% [markdown]
 # ## Setup
@@ -42,7 +42,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import plotnine as pn
 from sklearn.metrics import pairwise_distances
 import networkx as nx
-
 
 sc.settings.verbosity = 3
 sc.settings.figdir = './figures/24script/'
@@ -73,7 +72,7 @@ def cm2inch(x):
 # %autoreload 2
 
 # %% [markdown]
-# ## TITLE
+# ## Loading data
 
 # %%
 hoxb5 = sc.read('procdata/04script/combined_filt.h5ad')
@@ -85,6 +84,8 @@ hoxb5.obs['longname'] = [meta.loc[i, 'longname'] for i in hoxb5.obs.biosample_id
 hoxb5.uns['paga'] = hoxb5.uns['pagaPCA']
 sc.pl.paga_compare(hoxb5, threshold=0.05, save='_clusters.pdf')
 
+# %% [markdown]
+# ## Pltting clusters and PAGA with annotation
 
 # %%
 def get_colormap(adata, obs_column):
@@ -105,8 +106,6 @@ from scanpy.plotting.palettes import default_20
 hoxb5.uns['anno_man_colors'] = default_20[0 : len(hoxb5.obs.anno_man.cat.categories)]
 x = np.where(hoxb5.obs.anno_man.cat.categories == 'Int prog')[0][0]
 hoxb5.uns['anno_man_colors'][x] = "#C5C5C5"
-# hoxb5.uns['anno_man_colors'] = np.array(["#C5C5C5" if x == '#d33f6a' else x for x in hoxb5.uns['anno_man_colors']])
-
 clustmap = get_colormap(hoxb5, 'leiden')
 annomap = get_colormap(hoxb5, 'anno_man')
 
@@ -130,9 +129,10 @@ sc.pl.paga(hoxb5,
            save='_anno_man.pdf')
 
 # %% [markdown]
-# ## PAGA view over time
+# ## Plotting cell numbers on PAGA over time
 
 # %%
+# Getting cell numbers
 cellno = pd.read_csv('./procdata/05script/model_input_tompos.csv', index_col=0)
 cellno['cellno'] = cellno['sc_ncells_filt'] / cellno['sc_ncells_total'] * cellno['flow_total']
 cellno = cellno.loc[~cellno.cellno.isna(),:]
@@ -146,90 +146,14 @@ avtotal = cellno[['cellno', 'time']]
 avtotal = avtotal.groupby('time').mean()
 cellnoN = (cellnoN.T * avtotal['cellno']).T
 
-#We will be plotting the total nubmer of Tom+ cells over time for each cluster
-cellnoN
-
 # %%
-# pos_cellno = pd.read_csv('./procdata/05script/model_input_tompos.csv', index_col=0)
-# pos_cellno['cellno'] = pos_cellno['sc_ncells_filt'] / pos_cellno['sc_ncells_total'] * pos_cellno['flow_total']
-# pos_cellno = pos_cellno.loc[~pos_cellno.cellno.isna(),:]
-
-# pos_cellnoN = pos_cellno.loc[:, pos_cellno.columns.isin(hoxb5.obs.leiden.cat.categories)]
-# pos_cellnoN = (pos_cellnoN.T / pos_cellnoN.sum(axis=1)).T
-# pos_cellnoN['time'] = pos_cellno.time
-# pos_cellnoN = pos_cellnoN.groupby('time').mean()
-
-# pos_avtotal = pos_cellno[['cellno', 'time']]
-# pos_avtotal = pos_avtotal.groupby('time').mean()
-# pos_cellnoN = (pos_cellnoN.T * pos_avtotal['cellno']).T
-
-# #We will be plotting the total nubmer of Tom+ cells over time for each cluster
-# pos_cellnoN
-
-# neg_cellno = pd.read_csv('./procdata/05script/model_input_tomneg.csv', index_col=0)
-# neg_cellno['cellno'] = neg_cellno['sc_ncells_filt'] / neg_cellno['sc_ncells_total'] * neg_cellno['flow_total']
-# neg_cellno = neg_cellno.loc[~neg_cellno.cellno.isna(),:]
-
-# neg_cellnoN = neg_cellno.loc[:, neg_cellno.columns.isin(hoxb5.obs.leiden.cat.categories)]
-# neg_cellnoN = (neg_cellnoN.T / neg_cellnoN.sum(axis=1)).T
-# neg_cellnoN['time'] = neg_cellno.time
-# neg_cellnoN = neg_cellnoN.groupby('time').mean()
-
-# neg_avtotal = neg_cellno[['cellno', 'time']]
-# neg_avtotal = neg_avtotal.groupby('time').mean()
-# neg_cellnoN = (neg_cellnoN.T * neg_avtotal['cellno']).T
-
-# #We will be plotting the total nubmer of Tom+ cells over time for each cluster
-# neg_cellnoN
-
-# freq = pos_cellnoN/neg_cellnoN
-# freq
-
-# x = hoxb5.uns['paga']['connectivities'].todense()
-# x[x <= 0.01 ] = 0
-# g = nx.Graph(x)
-# cats = hoxb5.obs.leiden.cat.categories
-
-# ncols = len(freq.index)
-# fig, axes = plt.subplots(nrows=1, ncols=ncols)
-# fig.set_size_inches(ncols*4, 4, forward=True)
-# divider = make_axes_locatable(axes[-1])
-# cax = divider.append_axes('right', size='5%', pad=0.05)
-# cax = [cax]
-
-# for i,ax in zip(freq.index,axes):
-#     nx.draw(g,
-#             pos=hoxb5.uns['pagaPCA']['pos'],
-#             node_size=np.sqrt(hoxb5.uns['leiden_sizes'])*2,
-#             node_color=freq.loc[i,:],
-#             vmin=0,
-#             vmax=0.05,
-#             with_labels=False,
-#             cmap='Reds',
-#             edge_color='lightgrey',
-#             width=0.95,
-#             style='dashed',
-#            ax = ax)
-#     labels = {n:cats[n] for n in range(len(cats))}
-#     nx.draw_networkx_labels(g, pos=hoxb5.uns['pagaPCA']['pos'], labels=labels)
-#     cmap=plt.cm.Reds
-#     sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin = 0, vmax=0.05))
-#     ax.set_title(str(i))
-#     # sm = plt.cm.ScalarMappable(cmap=cmap, norm=mpl.colors.LogNorm(vmin = 0, vmax=3.8))
-    
-#     sm._A = []
-#     plt.colorbar(sm, cax=cax[0])
-
-# fig.show()
-# fig.tight_layout()
-# fig.savefig(base_figures + 'paga_timecourse.pdf')
-
-# %%
+# Constructing graph
 x = hoxb5.uns['paga']['connectivities'].todense()
 x[x <= 0.01 ] = 0
 g = nx.Graph(x)
 cats = hoxb5.obs.leiden.cat.categories
 
+# Plotting
 ncols = len(cellnoN.index)
 fig, axes = plt.subplots(nrows=1, ncols=ncols)
 fig.set_size_inches(ncols*4, 4, forward=True)
@@ -264,76 +188,11 @@ fig.show()
 fig.tight_layout()
 fig.savefig(base_figures + 'paga_timecourse.pdf')
 
-# %%
-# hoxb5.uns['paga']['blank'] = csr_matrix(np.zeros(hoxb5.uns['paga']['connectivities'].shape))
-# hoxb5.uns['paga']['ones'] = hoxb5.uns['paga']['connectivities'].copy()
-# hoxb5.uns['paga']['ones'][hoxb5.uns['paga']['ones'] <= 0.01 ] = 0
-# hoxb5.uns['paga']['ones'][hoxb5.uns['paga']['ones'] > 0.01 ] = 1
-
-
-# for i in cellnoN.index:
-#     hoxb5.obs['temp'] = [cellnoN.loc[i, x] for x in hoxb5.obs.leiden]
-#     sc.pl.paga(hoxb5,
-#            pos = hoxb5.uns['pagaPCA']['pos'],
-#            text_kwds={'color' : 'black'},
-#            color = 'temp',
-#            cmap='Reds',
-#            title='day ' + str(i),
-#            solid_edges='blank',    
-#            dashed_edges='ones',
-#            edge_width_scale=1,
-#            # min_edge_width=1,
-#            max_edge_width=0.5,    
-#            node_size_scale = 2,
-#            save=f'_timecourse_{i}days.pdf')          
-
-
-# ncols = len(cellnoN.index)
-# fig, axes = plt.subplots(nrows=1, ncols=ncols)
-# fig.set_size_inches(ncols*5, 4, forward=True)
-# divider = make_axes_locatable(axes[-1])
-# cax = divider.append_axes('right', size='5%', pad=0.05)
-# cax = [cax]
-
-# pos = hoxb5.uns['pagaPCA']['pos'].copy()
-# posfake = np.concatenate((pos, np.array([[-4,4]]), np.array([[-5,5]])), axis=0)
-# hoxb5.obs['leiden'] = hoxb5.obs['leiden'].astype(str)
-# hoxb5.obs['leiden'][0] = 'fake0'
-# hoxb5.obs['leiden'][1] = 'fake1'
-# hoxb5.obs['leiden'] = pd.Categorical(hoxb5.obs['leiden'])
-
-
-# for i, ax in zip(cellnoN.index, axes):
-#     hoxb5.obs['temp'] = [np.log1p(cellnoN.loc[i, x]) for x in hoxb5.obs.leiden]
-#     #Adding fake clusters to force the colorscale
-#     hoxb.obs['temp'][0] = 0
-#     hoxb.obs['temp'][1] = 8.75
-    
-#     sc.pl.paga(hoxb5,
-#            pos = posfake,
-#            text_kwds={'color' : 'black'},
-#            color = 'temp',
-#            cmap='Reds',
-#            title='day ' + str(i),
-#            solid_edges='blank',    
-#            dashed_edges='ones',
-#            edge_width_scale=1,
-#            # min_edge_width=1,
-#            max_edge_width=0.5,    
-#            node_size_scale = 2,
-#            show=False,
-#            cax=cax,   
-#            ax=ax)
-# # fig.tight_layout()
-# fig.savefig(base_figures + 'test.pdf')
-
-
+# %% [markdown]
+# ## Plotting Discrete model
 
 # %% [markdown]
-# ## Discrete model
-
-# %% [markdown]
-# #### Getting Self-renewal rates (k), net proliferation, cluster sizes
+# ### Getting data from discrete model - Self-renewal rates (k), net proliferation, cluster sizes etc
 
 # %%
 k = pd.read_csv('./discrete_model/output/self_renewal.txt', header=None)[0].values
@@ -390,7 +249,10 @@ hoxb5.obs['log10SR'] = vec
 hoxb5.uns['leiden_sizes'] = np.ceil(df.leiden_sizes.values*10000)
 
 # %% [markdown]
-# #### Differentiation rates
+# ### Plotting differentiation rates on PAGA-like graphs
+
+# %% [markdown]
+# #### Preparing for plotting
 
 # %%
 # Loading matrix with differentiation rates (best fit)
@@ -406,9 +268,6 @@ logdrates = np.log1p(drates.values)
 logdrates = csr_matrix(logdrates)
 hoxb5.uns['paga']['transitions'] = logdrates
 
-# %% [markdown]
-# #### Figure tweaks
-
 # %%
 # Adding positions for cluster 30 and 40
 pos = hoxb5.uns['pagaPCA']['pos'].copy()
@@ -421,70 +280,12 @@ hoxb5.obs['leiden'] = hoxb5.obs.leiden.cat.rename_categories({'0' : '0c', '30' :
 sc.set_figure_params( dpi=300, dpi_save = 400, frameon=False, figsize = (6,4), fontsize=12)
 
 # %% [markdown]
-# #### PAGA plots
+# #### PAGA-like
+# The plots are composed of several layers
 
-# %%
-# Plotting differentiation rates (arrows) + net proliferation rates (colors)
-# All rates below 0.01 plotted as dashed lines
-fig, ax = plt.subplots(1,1, figsize = (6,5))
-divider = make_axes_locatable(ax)
-cax = divider.append_axes('right', size='5%', pad=0.05)
-cax = [cax]
-cax2 = divider.append_axes('bottom', size='20%', pad=0.05)
+# %% [markdown]
+# #### net proliferation and differentiation rates plot
 
-# Plotting parameters
-nodesizes = np.power(leiden_sizes, 0.5)  # This is to match node sizes in paga
-trm = logdrates.toarray()
-trm1 = trm.copy()
-trmin = 0.01
-
-# Plotting arrows above the threshold
-trm1[trm1 < trmin] = 0
-plot_arrows(hoxb5,
-            transitions=trm1,
-            connectionstyle='arc3, rad=0.2',
-            edge_width_scale=5,
-            node_size=nodesizes*50,
-            arrowsize=7,
-            ax=ax)
-
-# Plotting arrows below the threshold (dashed)
-trm2 = trm.copy()
-trm2[trm2 >= trmin] = 0
-plot_arrows(hoxb5,
-            transitions=trm2,
-            connectionstyle='arc3, rad=0.2',
-            width= 0.3,
-            node_size=nodesizes*40,
-            arrowsize=7,
-            style=(0, (1,6)),
-            edge_color='grey',
-            ax=ax)
-
-pagac.paga(hoxb5,
-           transitions='transitions',
-           pos = hoxb5.uns['pagaPCA']['pos'],
-           text_kwds={'color' : '#00cc52'}, # #00cc52 or #90bfa3 or #05d65e or springgreen - #00FF7F
-           threshold = 10^16, 
-           color = 'logk',
-           node_size_scale = 1.8,
-           cmap='plasma',
-           ax=ax,
-           cax=cax,
-           show=False)
-
-
-plot_widthbar(vmin=trm1[np.nonzero(trm1)].min(),
-              vmax=trm1[np.nonzero(trm1)].max(),
-              edge_width_scale=5,
-              ndigits=3,
-              ax=cax2)
-cax2.margins(0.2)
-
-plt.savefig(base_figures + 'paga_logk_drates.pdf')
-plt.show()
-
-# %%
 # Plotting differentiation rates (arrows) + net proliferation rates (colors)
 # All rates below 0.01 plotted as dashed lines
 fig, ax = plt.subplots(1,1, figsize = (6.5,5))
@@ -535,93 +336,17 @@ plt.savefig(base_figures + 'paga_netprolif_drates.pdf')
 plt.show()
 
 # %% [markdown]
-# #### Calculating cells flux (differentiation rate * cluster size)
+# #### logk and differentiation rate plots
+
+# %% [markdown]
+# #### Plotting residence time and cell flux
 
 # %%
 # Getting the differentiation rates (row to columns direction)
 xflux = drates.values
 # Adjusting for source cluster sie
-xflux = np.einsum('ij,j->ij', xflux, hoxb5.uns['leiden_sizes']) 
+xflux = np.einsum('ij,j->ij', xflux, hoxb5.uns['leiden_sizes'])
 np.sort(xflux[xflux.nonzero()])
-
-# %%
-# Figure setup
-fig, ax = plt.subplots(1,1, figsize = (6.5,5))
-divider = make_axes_locatable(ax)
-cax = divider.append_axes('right', size='5%', pad=0.05)
-cax = [cax]
-cax2 = divider.append_axes('bottom', size='20%', pad=0.05)
-
-# Plotting parameters
-trm = xflux #  transitions matrix
-nodesizes = np.power(leiden_sizes, 0.5)  # This is to match node sizes in paga
-trmin = 500  # transitions below thi value will be dashed
-trmax=trm.max() # transitions above this value will be clipped to this value
-trmax=7.5e+05 # transitions above this value will be clipped to this value
-# edge_width_scale = 0.000009
-edge_width_scale = 0.000013
-
-#Plotting only thick arrows (values are clipped at trmax)
-trm0 = trm.copy()
-trm0[trm0 >= trmax] = trmax
-trm0[trm0 < trmax] = 0
-
-plot_arrows(hoxb5,
-            transitions=trm0,
-            connectionstyle='arc3, rad=0.2',
-            edge_width_scale=edge_width_scale,
-            node_size=nodesizes*30, # Slightly different to prettify the figure
-            arrowsize=6,
-            ax=ax)
-
-#Plotting mid-sized arrows
-trm1 = trm.copy()
-trm1[np.logical_or(trm1 < trmin, trm1 >= trmax)] = 0
-
-plot_arrows(hoxb5,
-            transitions=trm1,
-            connectionstyle='arc3, rad=0.2',
-            edge_width_scale=edge_width_scale,
-            node_size=nodesizes*50,
-            arrowsize=6,
-            ax=ax)
-
-# Plotting dashed arrows (values below the threshold)
-trm2 = trm.copy()
-trm2[np.logical_and(trm2 >= trmin, trm2 != 0)] = 0
-trm2[np.logical_and(trm2 < trmin, trm2 != 0)] = 1/trmin
-plot_arrows(hoxb5,
-            transitions=trm2,
-            connectionstyle='arc3, rad=0.2',
-            width= 0.3,
-            node_size=nodesizes*50,
-            arrowsize=6,
-            style=(0, (1,6)),
-            edge_color='grey',
-            ax=ax)
-
-# Plotting nodes
-pagac.paga(hoxb5,
-           transitions='transitions',
-           pos = hoxb5.uns['pagaPCA']['pos'],
-           text_kwds={'color' : '#00cc52'}, # #00cc52 or #90bfa3 or #05d65e or springgreen - #00FF7F
-           threshold = 10^6, 
-           color = 'logk',
-           node_size_scale = 1.8,
-           cmap='plasma',
-           ax=ax,
-           cax=cax,
-           show=False)
-
-plot_widthbar(vmin=trm1[np.nonzero(trm1)].min(),
-              vmax=trmax,
-              edge_width_scale=edge_width_scale,
-              ndigits=-3,
-              ax=cax2)
-cax2.margins(0.2)
-
-plt.savefig(base_figures + 'paga_logk_flux.pdf')
-plt.show()
 
 # %% tags=[]
 # Figure setup
@@ -703,15 +428,12 @@ plt.savefig(base_figures + 'paga_log10SR_flux.pdf')
 plt.show()
 
 # %% [markdown] tags=[]
-# ## Waiting times
+# ## Plotting waiting times
 
 # %%
 leiden_anno_map = hoxb5.obs[['anno_man', 'leiden']]
 leiden_anno_map = leiden_anno_map.drop_duplicates()
 leiden_anno_map = dict(zip(leiden_anno_map.leiden, leiden_anno_map.anno_man))
-
-# %% [markdown]
-# ### Deterministic estimation
 
 # %%
 wtimesD = pd.read_csv('./discrete_model/output/waiting_times.txt', header=None)
@@ -750,10 +472,7 @@ sc.set_figure_params(figsize = (5,4), frameon=False)
 sc.pl.umap(hoxb5, color='wtimeD', norm=mpl.colors.LogNorm(vmin=10), save='_wtimes_deterministic.pdf')
 
 # %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[]
-# ## Switch off
-
-# %% [markdown]
-# ### Whole 0 cluster
+# ## Switch off (cluster 0)
 
 # %%
 swoff = pd.read_csv('./discrete_model/output/waiting_times_deterministic1  21  22.txt',
@@ -786,7 +505,7 @@ g2.save(base_figures + './swoff_0_30_40.pdf', width = cm2inch(6), height = cm2in
 print(g2)
 
 # %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=[]
-# ## Comparison of differentiation rates with connectivities or changes in pseudotime TBC
+# ## Comparison of differentiation rates with connectivities or changes in pseudotime
 
 # %%
 sc.set_figure_params( dpi=150, dpi_save = 400, frameon=False, figsize = (4,4), fontsize=10)
@@ -805,7 +524,6 @@ cons = cons.ravel(order='F')
 keep2 = np.array(['0c', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
 mask2 = hoxb5.obs.leiden.cat.categories.isin(keep2)
 drates2 = drates.loc[mask2, mask2].values
-#To 1d array
 drates2 = drates2.ravel(order='F')
 
 #Change in pseudotime for relevant clusters
@@ -813,7 +531,6 @@ dpt = hoxb5.obs[['leiden_orig', 'dpt_pseudotime']]
 dpt = dpt.groupby('leiden_orig').dpt_pseudotime.mean()
 dpt = dpt[dpt.index.isin(keep1)].values
 ddpt = pairwise_distances(dpt.reshape(-1, 1), metric='sqeuclidean')
-#To 1d array
 ddpt = ddpt.ravel(order='F')
 
 #Making indices for annotation
@@ -834,33 +551,8 @@ ds = ds[ds.index.isin(keep1)].values
 from sklearn.metrics import pairwise_distances
 dpt = pairwise_distances(ds.reshape(-1, 1), metric='sqeuclidean').ravel(order='F')
 
-
 # %%
-
-sc.set_figure_params( dpi=150, dpi_save = 400, frameon=False, figsize = (cm2inch(6),cm2inch(6)), format='png',fontsize=7.5)
-
-plt.scatter(np.log10(df5.ddpt.values), np.log10(df5.drates.values), s=18)
-plt.xlabel("log10(pseudotime change)")
-plt.ylabel("log10(differentiation rates)")
-for i in range(len(df5.index)):
-    plt.annotate(df5.index[i], (np.log10(df5.ddpt[i]), np.log10(df5.drates[i])),
-                 fontsize=5,
-                 xytext=(4, 0), textcoords='offset points',)
-
-plt.savefig(base_figures + 'drate_ddpt.pdf') 
-plt.show()
-
-# %%
-plt.scatter(np.log10(df5.cons.values), np.log10(df5.drates.values), s=18)
-
-plt.xlabel("log10(connectivity)")
-plt.ylabel("log10(drates)")
-for i in range(len(df5.index)):
-    plt.annotate(df5.index[i], (np.log10(df5.cons[i]), np.log10(df5.drates[i])),
-                 fontsize=5,
-                 xytext=(4, -3), textcoords='offset points',)
-plt.savefig(base_figures + 'cons_ddpt.pdf') 
-plt.show()
+sc.set_figure_params(dpi=150, dpi_save = 400, frameon=False, figsize = (cm2inch(6),cm2inch(6)), format='png',fontsize=7.5)
 
 # %%
 #Hack adapted from
@@ -924,96 +616,3 @@ ax = plt.gca()
 repel_labels(ax, np.log10(df5.ddpt).values, np.log10(df5.drates.values), labels=df5.index.values, k=0.50)
 plt.savefig(base_figures + 'drate_ddpt.pdf') 
 plt.show()
-
-# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[]
-# ## Confidence intervals
-
-# %%
-# bounds = pd.read_csv('./discrete_model/output/bounds.txt', delimiter='\t', header=None)
-# bounds.columns = ['ind1', 'mean', 'ub', 'lb', 'chi1', 'chi2']
-
-# %%
-# dmmeta = pd.read_csv('./data/discrete_model/dm_meta.csv') 
-# dmmeta['cluster'] = dmmeta.cluster.astype('Int64').astype(str)
-
-# bdf = dmmeta.loc[(dmmeta.cluster.isin(['30', '40'])) & (dmmeta.description == 'neg_size') , :]
-# bdf.index = bdf.ind0.values
-# df6 = bdf.merge(bounds, left_index=True, right_index=True)
-# print(df6)
-
-# plt.bar(df6.cluster, df6['mean'])
-
-# %%
-#In mean_clu_size.txt  sizes are 0c 0.96355, 30 1.3249 and 40 77.053
-
-# %%
-# sc.set_figure_params( dpi=150, dpi_save = 400, frameon=False, figsize = (6,4), fontsize=10)
-# fig, axes = plt.subplots(1, 3, figsize=(12, 4))
-# for i,ax in zip(wtimes.dest_type.unique(), axes):
-#     ax.bar(tclusters[wtimes.dest_type == i], wtimes.loc[wtimes.dest_type == i, 0])
-#     ax.set_xlabel("Destination cluster")
-#     ax.set_ylabel("Waiting time [days]")
-# plt.show()
-
-
-# # plt.bar(tclusters, wtimes[0])
-# # plt.ylim((0, 5))
-# # plt.show()
-
-# %%
-# #einsum sanity check
-# a = np.array([[1,2,3], [4,5,6], [7,8,9]])
-# b = np.array([10,100,1000])
-# np.einsum('ij,i->ij', a, b)
-
-# %%
-
-# # Plotting differentiation rates (arrows) + net proliferation rates (colors)
-# # All rates below 0.01 plotted as dashed lines
-# fig, ax = plt.subplots(1,1, figsize = (6,4))
-# divider = make_axes_locatable(ax)
-# cax = divider.append_axes('right', size='5%', pad=0.05)
-# cax = [cax]
-
-# tr = 0.1
-
-# # trm = np.log10(xflux.T+1)
-# trm = np.log10(xflux.T+1)
-# trm1 = trm.copy() - 3
-# trm1[np.logical_and(trm1 < tr, trm1 != 0)] = 0
-
-# plot_arrows(hoxb5,
-#             transitions=trm1,
-#             connectionstyle='arc3, rad=0.2',
-#             edge_width_scale=1.2,
-#             node_size=270,
-#             arrowsize=7,
-#             ax=ax
-# )
-
-# trm2 = trm.copy()
-# trm2[np.logical_and(trm2 >= tr, trm2 != 0)] = 0
-# trm2[np.logical_and(trm2 < tr, trm2 != 0)] = 0.01
-# plot_arrows(hoxb5,
-#             transitions=trm2,
-#             connectionstyle='arc3, rad=0.2',
-#             width= 0.3,
-#             node_size=270,
-#             arrowsize=7,
-#             style=(0, (1,6)),
-#             edge_color='grey',
-#             ax=ax
-# )
-
-# pagac.paga(hoxb5,
-#            transitions='transitions',
-#            pos = hoxb5.uns['pagaPCA']['pos'],
-#            text_kwds={'color' : '#00cc52'}, # #00cc52 or #90bfa3 or #05d65e or springgreen - #00FF7F
-#            threshold = 10^6, 
-#            color = 'logk',
-#            node_size_scale = 2.2, cmap='plasma',
-#            ax=ax,
-#            cax=cax,
-#            show=False)
-# plt.savefig(base_figures + 'paga_logk_flux.pdf')
-# plt.show()

@@ -157,37 +157,3 @@ comb = comb[comb.obs.index[comb.obs.predicted_doublets != True],:].copy()
 #Removing all 0 genes
 sc.pp.filter_genes(comb, min_counts=1)
 comb.write(base_procdata + 'combined10x_qced_logn.h5ad')
-
-# %% [markdown]
-# ### Reference samples only
-
-# %%
-comb = sc.read(base_procdata + 'combined10x_qced_logn.h5ad')
-refs = comb[comb.obs.index[(comb.obs.tom == 'neg')], :].copy()
-refs.obs['10xsample_description'].value_counts()
-
-refs = refs[:, refs.var.index[(refs.X.sum(axis=0).A1 > 0)]].copy()
-utils.proc.process(refs,
-             compute_hivar = True,
-             n_pcs = 50,
-             n_neighbors = 12,
-             lognorm_data = False,
-             n_variable = 5000,
-             remove_genes = toremove,
-             Sgenes = Sgenes,
-             G2Mgenes = G2Mgenes, 
-             regress_cc = False)
-
-# %%
-sc.pl.umap(refs, color = ['biosample_id', 'batch', 'leiden', 'phase'], save = '_refs_info.pdf', wspace = 0.8)
-sc.pl.umap(refs, color = ['Procr', 'Klf1', 'Dntt', 'Elane', 'Irf8',
-                          'Cma1', 'Pf4', 'Hoxb5', 'Ms4a2', 'Gzmb', 'Prg2'], save = '_refs_markers.pdf')
-
-# %%
-utils.plots.umap_subgroups(refs, key = 'sample_id', toplot = refs.obs.sample_id.cat.categories, file = base_figures + 'umap_refs_bysampleid.pdf')
-
-# %%
-# (refs.var.index == refs.raw.var.index).all()
-# refs.X = refs.raw.X
-# del refs.raw
-# refs.write(base_procdata + 'refs_processed.h5ad', compression = 'lzf')

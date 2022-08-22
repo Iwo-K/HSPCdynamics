@@ -20,7 +20,7 @@
 # !hostname
 
 # %% [markdown]
-# # Figure 2 - cell projections
+# # Plots for figure 2 with projections of external data
 
 # %% [markdown]
 # ## Setup
@@ -80,8 +80,8 @@ hoxb5.obs['longname'] = [meta.loc[i, 'longname'] for i in hoxb5.obs.biosample_id
 #Loading Nestorowa et al. 2016 data
 sfdata = sc.read('./procdata/07script/sfdata_hoxb5projection.h5ad')
 
-# %% [markdown]
-# #### Plotting UMAPs
+# %% [markdown] tags=[]
+# ### UMAPs
 
 # %% tags=[]
 ref = hoxb5.copy()
@@ -118,52 +118,18 @@ plt.savefig(base_figures + 'sfdata_hoxb5proj_ESLAM_ST_MPP1.pdf')
 
 # %% tags=[]
 fig, ax = plt.subplots()
-
 fig.set_size_inches(5, 4)
 sc.pl.umap(hoxb5, alpha=0.35, ax=ax, show=False)
 y = x[x.obs.index[x.obs.celltype.isin(['MPP3', 'LMPP', 'GMP', 'MEP'])],:].copy()
 y.uns['celltype_colors'] = default_20[4:8]
-#['#e377c2' ,'#b5bd61' ,'#8c564b']
-
-# ["#02aab3", "#ff577f", '#3f7ffd', "#36354c"]
 
 sc.pl.umap(y,
            color='celltype', ax=ax, show=False, size = 55, frameon=False)
-# fig.tight_layout()
 ax.set_box_aspect(1)
 plt.savefig(base_figures + 'sfdata_hoxb5proj_progenitors.pdf')
 
-# %%
-fig, ax = plt.subplots()
-
-fig.set_size_inches(5, 4)
-sc.pl.umap(hoxb5, alpha=0.35, ax=ax, show=False)
-y = x[x.obs.index[x.obs.celltype.isin(['MPP3', 'GMP', 'CMP', 'MEP'])],:].copy()
-y.uns['celltype_colors'] = default_20[4:8]
-#['#e377c2' ,'#b5bd61' ,'#8c564b']
-
-# ["#02aab3", "#ff577f", '#3f7ffd', "#36354c"]
-
-sc.pl.umap(y,
-           color='celltype', ax=ax, show=False, size = 55, frameon=False)
-# fig.tight_layout()
-ax.set_box_aspect(1)
-plt.savefig(base_figures + 'sfdata_hoxb5proj_MPP3_GMP_CMP_MEP.pdf')
-
-# %%
-fig, ax = plt.subplots()
-
-fig.set_size_inches(5, 4)
-sc.pl.umap(hoxb5, alpha=0.35, ax=ax, show=False)
-y = sfdata[sfdata.obs.index[sfdata.obs.celltype.isin(['CMP'])],:].copy()
-sc.pl.umap(y,
-           color='celltype', ax=ax, show=False, size = 55, frameon=False)
-# fig.tight_layout()
-ax.set_box_aspect(1)
-plt.savefig(base_figures + 'sfdata_hoxb5proj_CMP.pdf')
-
-# %% [markdown]
-# #### Frequency of clusters within each immunophenotypic gate
+# %% [markdown] tags=[]
+# ### Frequency of clusters within each immunophenotypic gate
 
 # %%
 df = pd.crosstab(sfdata.obs.ref_leiden, sfdata.obs.celltype_e, normalize='columns')
@@ -195,7 +161,6 @@ g.save(base_figures + 'sfdata_clusterfractions.pdf')
 # ## Weinreb et al. 2020 projections
 
 # %%
-#Loading Weinreb et al. 2020 data
 d2clones = sc.read('./procdata/07script/Weirenb2020_hoxb5projection.h5ad')
 fates = d2clones.obs.fateclass.value_counts()
 
@@ -231,9 +196,6 @@ toplot = ['Monocyte', 'Neutrophil', 'Monocyte_Neutrophil', 'Baso',
 utils.plots.umap_subgroups(comb, key = 'fateclass', size=48,
                            toplot = toplot, file=base_figures + 'Weinreb2020_projection_subgroups.pdf')
 
-# utils.plots.umap_subgroups(comb, key = 'fateclass',
-#                            toplot = d2clones.obs.fateclass.unique(), file=base_figures + 'Weinreb2020_projection_subgroups.pdf')
-
 # %% [markdown]
 # ## Bowling et al. 2020 projections
 
@@ -245,49 +207,8 @@ fig, ax = plt.subplots()
 fig.set_size_inches(5, 4)
 sc.pl.umap(hoxb5, alpha=0.35, ax=ax, show=False)
 
-# bhsc.uns['fateclass_colors'] = ['#37bded', '#715544', '#fc95ca']
-
 sc.pl.umap(bhsc,
            color='HSC_labels', ax=ax, show=False, size = 55, frameon=False, alpha=0.7)
 # fig.tight_layout()
 ax.set_box_aspect(1)
 plt.savefig(base_figures + 'Bowling2020_hoxb5proj_HSClabels.pdf')
-
-# comb = ref.concatenate(bhsc, batch_key='batch', batch_categories=['ref', 'bhsc'], index_unique=None)
-# utils.plots.umap_subgroups(comb, key = 'HSC_labels',
-#                            toplot = bhsc.obs.HSC_labels.unique(), file=base_figures + 'Bowling2020_projection_subgroups.pdf')
-
-# %%
-
-# %%
-
-# %%
-
-# %% [markdown]
-# ## Looking at Gfi1 and Irf8 correlation
-
-# %%
-d2clones = sc.read('./procdata/07script/Weirenb2020_hoxb5projection.h5ad')
-sc.pl.umap(d2clones, color=['Irf8', 'Gfi1'])
-
-# %% tags=[]
-df = pd.DataFrame({'Gfi1' : d2clones.raw[:, 'Gfi1'].X.toarray()[:,0], 'Irf8' : d2clones.raw[:, 'Irf8'].X.toarray()[:,0],
-                   'fateclass' : d2clones.obs.fateclass})
-df.fateclass.value_counts()
-
-# %%
-plt.scatter(df.loc[df.fateclass == 'Monocyte_Neutrophil', 'Gfi1'], df.loc[df.fateclass == 'Monocyte_Neutrophil', 'Irf8'])
-plt.show()
-plt.scatter(df.loc[df.fateclass == 'Monocyte', 'Gfi1'], df.loc[df.fateclass == 'Monocyte', 'Irf8'])
-plt.show()
-plt.scatter(df.loc[df.fateclass == 'Neutrophil', 'Gfi1'], df.loc[df.fateclass == 'Neutrophil', 'Irf8'])
-
-# %%
-tot = len(df.loc[df.fateclass == 'Monocyte_Neutrophil', 'Gfi1'])
-n1 = (df.loc[df.fateclass == 'Monocyte_Neutrophil', 'Gfi1'] != 0).sum()
-n2 = (df.loc[df.fateclass == 'Monocyte_Neutrophil', 'Irf8'] != 0).sum()
-#Very simple calculation of the dropout rate and how many cells with both genes one would expect
-droprate = (n1+n2)/2/tot #dropoutrate
-print(droprate * n1)
-print(droprate * n2)
-

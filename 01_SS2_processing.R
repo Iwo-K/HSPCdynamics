@@ -1,4 +1,4 @@
-#' # scB5Tom experiment SS2 data - 3d7d, 3dr2, 7d and 2w batches
+#' # HPSC dynamics - processing Smart-Seq2 data
 #' Author: Iwo Kucinski
 #' Last updated: `r Sys.time()`
 #+ setup, include=FALSE
@@ -43,16 +43,12 @@ load_ss2data = function(meta){
 data = load_ss2data(meta)
 
 #' ### Ensembl genes
-## genedata = makeGENEDATA(release = "jul2018.archive.ensembl.org")
-## fwrite(genedata, './data/genedata_v93.csv')
 genedata = fread('./data/genedata_v93.csv')
 genedata = as.data.frame(genedata)
 row.names(genedata) = genedata$geneid
 
-#' ### Removing wells which there were some problems while sorting
-## meta = meta[meta$touse == 'TRUE',]
+#' ### Sorting + batches assigned
 data = data[, as.character(meta$cellid)]
-
 meta$batch_plate_sorted = paste0(meta$batch, "_", meta$plate_sorted)
 
 #' ## QC
@@ -71,7 +67,7 @@ dataQC = scQC(data,
 metaQC = meta[meta$cellid %in% colnames(dataQC), ]
 dataQC = dataQC[,metaQC$cellid]
 
-#' Selectign variable genes
+#' Selecting variable genes
 vargenes = hivar(dataQC,
                  meanquantile = 0.4,
                  cv2tr = 0.1,

@@ -20,7 +20,7 @@
 # !hostname
 
 # %% [markdown]
-# # Figure 2
+# # Plots for Figure 2
 
 # %% [markdown]
 # ## Setup
@@ -64,30 +64,23 @@ mplparams = mpl.rcParams.copy()
 
 # %% [markdown]
 #
-# ## Unfiltered data - basic information
+# ## Plotting unfiltered data - basic information for supplement
 
 # %%
 comb_unfilt = sc.read('procdata/04script/combined.h5ad')
-
-# %%
 x = np.where(comb_unfilt.obs.anno_man.cat.categories == 'Int prog')[0][0]
 comb_unfilt.uns['anno_man_colors'][x] = "#C5C5C5"
 sc.pl.umap(comb_unfilt, color=['anno_man', 'leiden'], wspace=0.7, save='unfiltered_annotation_leiden.pdf')
-
-# %%
 sc.pl.umap(comb_unfilt, color=['leiden'], legend_loc='on data', save='unfiltered_clusters_ondata.pdf')
 
 # %% [markdown]
-# ## Filtered data - basic information
+# ## Plotting filtered data - basic information
 
 # %%
 hoxb5 = sc.read('procdata/04script/combined_filt.h5ad')
 meta = pd.read_csv('procdata/04script/combined_sample.meta.csv', index_col = 0)
 meta = meta.sort_values(by ='timepoint_tx_days', ascending = False)
 hoxb5.obs['longname'] = [meta.loc[i, 'longname'] for i in hoxb5.obs.biosample_id]
-
-# sc.pp.subsample(hoxb5, n_obs=5000)
-
 hoxb5.obsm['X_umap'] = hoxb5.obsm['X_umap_2d']
 
 # %%
@@ -145,35 +138,8 @@ utils.plots.umap_subgroups(hoxb5, key = 'tom_timepoint',
                            subsample_to={'neg_269' : 8000},
                            file=base_figures + 'cells_neg269.pdf')
 
-# %%
-# #Plotting all cells from indicated timepoint, but limiting to 8000 cells max
-# # x = hoxb5[hoxb5.obs.tom_timepoint.isin(['pos_3', 'pos_27', 'pos_269', 'neg_269']),:].copy()
-# toplot = ['pos_3', 'pos_12', 'pos_27', 'pos_269']
-# x = hoxb5[hoxb5.obs.tom_timepoint.isin(toplot),:].copy()
-# print(x.obs.tom_timepoint.value_counts())
-
-# from utils.proc import subsample_tomax
-# x = subsample_tomax(x, group='tom_timepoint', n_obs_max=8000)
-# print(x.obs.tom_timepoint.value_counts())
-# utils.plots.umap_subgroups(x, key = 'tom_timepoint',
-#                            toplot = toplot, 
-#                            subsample_to=
-#                            file=base_figures + 'cells_timepoints.pdf')
-# plt.show()
-# plt.close()
-
-# toplot = ['neg_269']
-# x = hoxb5[hoxb5.obs.tom_timepoint.isin(toplot),:].copy()
-# print(x.obs.tom_timepoint.value_counts())
-
-# from utils.proc import subsample_tomax
-# x = subsample_tomax(x, group='tom_timepoint', n_obs_max=8000)
-# print(x.obs.tom_timepoint.value_counts())
-# utils.plots.umap_subgroups(x, key = 'tom_timepoint', toplot = toplot, 
-#                            file=base_figures + 'cells_neg269.pdf')
-
 # %% [markdown]
-# ## Relative fractions of cells per timepoint
+# ## Plotting relative fractions of cells per timepoint
 
 # %%
 # Loading number of cells per cluster
@@ -219,12 +185,6 @@ toplot = []
 for i in avsum.index.get_level_values(0).unique():
     ratio = avsum.loc[i,:].copy()
     ratio = ratio.value
-
-#     #Clipping at 5
-#     clip = 7
-#     ratio.iloc[ratio > clip] = clip
-#     ratio.iloc[ratio < -clip] = -clip
-
     hoxb5.obs[str(i) + ' days'] = [ratio[i] for i in hoxb5.obs.leiden]
     toplot.append(str(i) + ' days')
 
@@ -232,27 +192,3 @@ cmap2 = utils.plots.cmap_RdBu2(values=None, vmin=avsum.value.min(), vmax=avsum.v
 sc.pl.umap(hoxb5, color = toplot, cmap = cmap2,
            vmin=avsum.value.min(), vmax=avsum.value.max(),
            save = 'rel_abundance_percluster_average.pdf')
-
-# %%
-# avs = tompos_clcountsN_rel.melt(ignore_index = False, var_name = 'biosample_id')
-# avs['cluster'] = avs.index
-# avs['timepoint_tx_days'] = meta.loc[avs.biosample_id, 'timepoint_tx_days'].values
-
-# avsum = avs.groupby(['timepoint_tx_days', 'cluster']).mean()
-# print(avsum)
-
-# toplot = []
-# for i in avsum.index.get_level_values(0).unique():
-#     ratio = avsum.loc[i,:].copy()
-#     ratio = ratio.value
-
-#     #Clipping at 5
-#     clip = 3
-#     ratio.iloc[ratio > clip] = clip
-#     ratio.iloc[ratio < -clip] = -clip
-
-#     hoxb5.obs[str(i) + 'd_avratio'] = [ratio[i] for i in hoxb5.obs.leiden]
-#     toplot.append(str(i) + 'd_avratio')
-
-# cmap2 = utils.plots.cmap_RdBu2(values = None, vmin = -clip, vmax = clip)
-# sc.pl.umap(hoxb5, color = toplot, cmap = cmap2, vmin = -clip, vmax = clip)#, save = 'rel_abundance_percluster_average.pdf')

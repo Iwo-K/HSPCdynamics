@@ -214,15 +214,6 @@ def delognorm(adata, counts_per_cell_after=10000):
     adata.X = X
     return adata
 
-#TEST
-# a = sc.read_10x_h5('./data/10x/16w/SLX-20853_SITTD12_filtered_feature_bc_matrix.h5')
-# abak = a.copy()
-# sc.pp.filter_genes(a, min_counts = 0)
-# utils.proc.lognorm(a)
-# anew = utils.proc.delognorm(a)
-# assert np.array_equal(abak.X.toarray(), anew.X.toarray())
-
-
 
 def process(adata,
             n_pcs = 50,
