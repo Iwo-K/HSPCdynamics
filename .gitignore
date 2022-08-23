@@ -34,3 +34,7 @@ discrete_model/outputs/
 !discrete_model/output/bounds.txt
 !discrete_model/bootstrap/input_tx_boot_err_prop.txt
 !discrete_model/biphasic/output/best_switch.txt
+!PD_model/clu_6/tables/*
+!PD_model/clu_7/tables/*
+!PD_model/clu_10/tables/*
+!PD_model/clu_11/tables/*
