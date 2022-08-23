@@ -250,6 +250,7 @@ hoxb5.uns['leiden_sizes'] = np.ceil(df.leiden_sizes.values*10000)
 
 # %% [markdown]
 # ### Plotting differentiation rates on PAGA-like graphs
+# The plots are composed of several layers (with different types of arrows)
 
 # %% [markdown]
 # #### Preparing for plotting
@@ -280,26 +281,23 @@ hoxb5.obs['leiden'] = hoxb5.obs.leiden.cat.rename_categories({'0' : '0c', '30' :
 sc.set_figure_params( dpi=300, dpi_save = 400, frameon=False, figsize = (6,4), fontsize=12)
 
 # %% [markdown]
-# #### PAGA-like
-# The plots are composed of several layers
-
-# %% [markdown]
 # #### net proliferation and differentiation rates plot
 
-# Plotting differentiation rates (arrows) + net proliferation rates (colors)
-# All rates below 0.01 plotted as dashed lines
+# %%
+#Plotting differentiation rates (arrows) + net proliferation rates (colors)
+#All rates below 0.01 plotted as dashed lines
 fig, ax = plt.subplots(1,1, figsize = (6.5,5))
 divider = make_axes_locatable(ax)
 cax = divider.append_axes('right', size='5%', pad=0.05)
 cax = [cax]
 
-# Plotting parameters
+#Plotting parameters
 nodesizes = np.power(leiden_sizes, 0.5)  # This is to match node sizes in paga
 trm = logdrates.toarray()
 trm1 = trm.copy()
 trmin = 0.01
 
-# Plotting arrows above the threshold
+#Plotting arrows above the threshold
 trm1[trm1 < trmin] = 0
 plot_arrows(hoxb5,
             transitions=trm1,
@@ -309,7 +307,7 @@ plot_arrows(hoxb5,
             arrowsize=7,
             ax=ax)
 
-# Plotting arrows below the threshold (dashed)
+#Plotting arrows below the threshold (dashed)
 trm2 = trm.copy()
 trm2[trm2 >= trmin] = 0
 plot_arrows(hoxb5,
@@ -334,9 +332,6 @@ pagac.paga(hoxb5,
            show=False)
 plt.savefig(base_figures + 'paga_netprolif_drates.pdf')
 plt.show()
-
-# %% [markdown]
-# #### logk and differentiation rate plots
 
 # %% [markdown]
 # #### Plotting residence time and cell flux
@@ -608,7 +603,7 @@ plt.savefig(base_figures + 'cons_drates.pdf')
 plt.show()
 
 
-# %%
+# %% tags=[]
 plt.scatter(np.log10(df5.ddpt.values), np.log10(df5.drates.values), s=18)
 plt.xlabel("log10(pseudotime change)")
 plt.ylabel("log10(differentiation rates)")

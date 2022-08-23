@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.4
+#       jupytext_version: 1.12.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -409,6 +409,11 @@ with open(base_procdata + 'combined_filt_umapref3d.pkl', 'wb') as f:
 comb_filt.obsm['X_umap_3d'] = comb_filt.obsm['X_umap'].copy()
 comb_filt.obsm['X_umap'] = comb_filt.obsm['X_umap_2d'].copy()
 
+comb_filt.uns['leiden_colors'] = ['#1f77b4', '#ff7f0e', '#279e68', '#d62728', '#aa40fc', '#8c564b',
+       '#e377c2', '#b5bd61', '#17becf', '#aec7e8', '#ffbb78', '#98df8a',
+       '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#dbdb8d', '#9edae5',
+       '#ad494a', '#8c6d31']
+
 sc.pl.umap(comb_filt, color='leiden', legend_loc='on data', save = 'PCA_filt_leiden.pdf')
 sc.pl.umap(comb_filt, color='anno_man', save = 'PCA_filt_annoman.pdf')
 sc.pl.paga_compare(comb_filt, threshold = 0.05, save = 'PCA_filt.pdf')
@@ -417,6 +422,62 @@ sc.pl.paga_compare(comb_filt, threshold = 0.05, save = 'PCA_filt.pdf')
 comb_filt.uns['pagaPCA'] = comb_filt.uns['paga'].copy()
 
 # %%
-comb_filt.write(base_procdata + 'combined_filt.h5ad', compression = 'lzf')
-comb_filt = sc.read(base_procdata + 'combined_filt.h5ad')
+# comb_filt.write(base_procdata + 'combined_filt.h5ad', compression = 'lzf')
 
+# %% [markdown]
+# ## Diffusion pseudotime
+
+# %% [markdown]
+# ### HSC score
+# First we compute the HSC score for each cell to identify the most immature cells and set the root for DPT
+
+# %%
+comb_counts = comb_filt.raw.to_adata()
+comb_counts = utils.proc.delognorm(comb_counts)
+comb_counts.write(base_procdata + 'combined_filt_counts.h5ad', compression='lzf')
+
+# %%
+HSCscore_genes = pd.Series(np.genfromtxt('data/HSCscore/model_molo_genes.txt', dtype='str'))
+missing = HSCscore_genes[~HSCscore_genes.isin(comb_counts.var.index)]
+
+tempX = np.concatenate((comb_counts.X.toarray(), np.zeros((comb_counts.n_obs, len(missing)))),
+               axis = 1)
+temp = AnnData(X = tempX,
+              obs = comb_counts.obs,
+              var = pd.DataFrame(index = np.concatenate((comb_counts.var.index.values, missing.values))))
+
+comb_filt.obs['HSCscore'] = calculate_HSCscore(temp)
+sc.pl.umap(comb_filt, color = 'HSCscore', save = '_HSCscore.pdf')
+
+
+#To choose the root cell we need to find the cell with the highest HSC score.
+#Data is quite noisy so we will use the nearest neighbor information to find cells
+#with the highest HSCscore among the nearest neighbors (including the cells itself)
+x = comb_filt.obsp['connectivities']
+inds = x.tolil().rows #Simple way to get the indices for nearest neighbors. lil is a lis of list format.
+
+y = comb_filt.obs.HSCscore.values
+nn_HSCscores = [y[i + [n]].mean() for n, i in enumerate(inds)] #indices are missing the cell itself so adding it back
+comb_filt.obs['nn_HSCscore'] = nn_HSCscores
+
+sc.pl.umap(comb_filt, color = 'nn_HSCscore', save = '_nnHSCscore.pdf')
+
+# %% [markdown]
+# ### DPT
+
+# %%
+root = np.where(comb_filt.obs.nn_HSCscore == comb_filt.obs.nn_HSCscore.max())[0][0]
+# #Manually specifying root
+# root = np.where(comb_clean.obs.index == '')[0][0]
+
+comb_filt.uns['iroot'] = root
+comb_filt.obs['isroot'] = False
+comb_filt.obs.isroot[root] = True
+comb_filt.obs['isroot'] = pd.Categorical(comb_filt.obs.isroot)
+sc.pl.umap(comb_filt, color = 'isroot')
+utils.plots.umap3d(comb_filt, color = 'isroot', key = 'X_umap_3d', filename = base_figures+ 'rootcheck.html')
+
+sc.tl.dpt(comb_filt, n_dcs = 15)
+
+# %%
+comb_filt.write(base_procdata + 'combined_filt.h5ad', compression = 'lzf')

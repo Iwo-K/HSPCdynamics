@@ -7,9 +7,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.10.0
+#       jupytext_version: 1.12.0
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -143,7 +143,10 @@ print(dfm.sort_values(by='ref_leiden'))
 
 dfm['ref_leiden'] = pd.Categorical(dfm.ref_leiden.astype(str), categories=sfdata.obs.ref_leiden.cat.categories)
 
+# %%
+
 # %% tags=[]
+sfdata.uns['ref_leiden_colors'] = hoxb5.uns['leiden_colors']
 lcol = {leiden : color for leiden, color in zip(sfdata.obs.ref_leiden.cat.categories, sfdata.uns['ref_leiden_colors'])}
 
 g = (pn.ggplot(dfm, pn.aes(x='celltype_e', y='value', fill='ref_leiden'))

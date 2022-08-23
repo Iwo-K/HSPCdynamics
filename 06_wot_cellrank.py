@@ -85,7 +85,6 @@ sc.pl.umap(comb, color = 'leiden', legend_loc = 'on data')
 
 # %% tags=[]
 comb = comb[comb.obs.tom == 'pos', :].copy() #using only Tom+ cells
-del comb.obsm['X_diffmap'] #For some reason presence of X_diffmap breaks things
 #Recomputing neighbors
 sc.pp.neighbors(comb, n_neighbors=12, use_rep='X_pca_harmony')
 

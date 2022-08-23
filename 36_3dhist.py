@@ -36,6 +36,8 @@ import re
 from anndata import AnnData
 from scipy.sparse import csr_matrix
 import networkx as nx
+from scipy import stats
+import plotly.graph_objects as go
 
 sc.settings.verbosity = 3
 base_figures = './figures/36script/'
@@ -79,6 +81,8 @@ cellnos = cellnos.groupby(by='time').cellno.mean()
 cellnos
 
 # %%
+xc = hoxb5.obsm['X_umap'][:,0]
+yc = hoxb5.obsm['X_umap'][:,1]
 ni=60 #Number of intervals
 pad = 6
 X, Y = np.meshgrid(np.linspace(start=xc.min()-pad, stop=xc.max()+pad, num=ni), np.linspace(start=yc.min()-pad, stop=yc.max()+pad, num=ni), indexing='ij')
@@ -90,7 +94,6 @@ def get_density(adata, n=40, bw_method=0.2):
     return(dens)
 
 for i in [3, 7, 27, 269]:
-# for i in [3, 7
     a = hoxb5[hoxb5.obs.timepoint_tx_days == i,:]
     d = get_density(a, n=ni)
     cells = np.log10(d*cellnos[i]+2)

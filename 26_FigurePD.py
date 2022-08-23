@@ -7,9 +7,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.13.8
+#       jupytext_version: 1.12.0
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -227,10 +227,18 @@ sc.pl.umap(hoxb5, color=['Gfi1', 'Flt3', 'Irf8'], cmap=cmap2, save='_Gfi1_Flt3_I
 # Plotting thresholded trajectories
 
 # %%
+for clu in [6, 10, 11, 7]:
+    table = pd.read_csv(f"PD_model/clu_{str(clu)}/tables/table_all_parameters_clu_{str(clu)}.csv",index_col=0)
+    hoxb5.obs[f"traj{str(clu)}"] = np.nan
+    hoxb5.obs.loc[hoxb5.obs.index.isin(table.index),f"traj{str(clu)}"] = "YES"
+
+# %%
 toplot = []
-for clu in [6, 10, 11, 16, 7]:
+for clu in [6, 10, 11, 7]:
     colnam = f'Trajectory {str(clu)}'
-    hoxb5.obs[colnam] = hoxb5.obs[f"wt{str(clu)}"]
+    hoxb5.obs[colnam] = hoxb5.obs[f"traj{str(clu)}"]
     hoxb5.obs.loc[~hoxb5.obs[colnam].isna(),[colnam]] = 'YES'
     toplot.append(colnam)
 sc.pl.umap(hoxb5, color=toplot, na_color='lightgrey', legend_loc=None, save='_thresholded_trajectories.pdf')
+
+# %%

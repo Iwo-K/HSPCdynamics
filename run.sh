@@ -2,15 +2,15 @@
 #SBATCH -p icelake
 #SBATCH -A gottgens-sl2-cpu
 #SBATCH -N 1
-#SBATCH -n 48 
+#SBATCH -n 40
 #SBATCH --time 12:00:00
-#SBATCH --job-name jobname_run1
-#SBATCH --output jobname_run_%J.log
+#SBATCH --job-name test3
+#SBATCH --output test3_%J.log
 
 ####################################################################
 # Modify this variables by adding the path to your singularity image
-container1="PATH TO THE CONTAINER"
-container1="/home/idk25/ik_rds/containers/rpy_v4/rpy_v4_p3_fix2.sif"
+container="PATH TO THE CONTAINER"
+container="/home/idk25/ik_rds/containers/rpy_v4/rpy_v4_p3_fix2.sif"
 
 ####################################################################
 
@@ -20,7 +20,8 @@ singularity exec ${container} R -e "knitr::spin('01_SS2_processing.R')"
 # singularity exec ${container} R -e "knitr::spin('09_DE.R')"
 # singularity exec ${container} R -e "knitr::spin('10_DEen.R')"
 
-pynotebooks="04_integration
+pynotebooks="02_10x_processing
+ 04_integration
  05_label_discrete
  06_wot_cellrank
  07_projections

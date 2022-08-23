@@ -6,7 +6,7 @@
 #       extension: .R
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.4
+#       jupytext_version: 1.12.0
 #   kernelspec:
 #     display_name: R
 #     language: R
@@ -346,6 +346,7 @@ tfplots
 # %% [markdown]
 # ##### Genes associated with neutrophil and monocyte lineages
 
+# %%
 genes_toplot = list(Neu_genes = c('Elane', 'Cst7', 'Cebpe', 'Fcgr3', 'Prtn3', 'Gfi1', #Early neutrophil genes
              'S100a8', 'Clec4a2', 'Wfdc21', 'G0S2'), #Late neutrohil genes
              Transition_genes = c('Irf8', 'Flt3', 'Cd34', 'Ikzf2', 'Cxcr2', 'Slc22a3', 'Ctsh'), #handchosen transient genes from the heatmap

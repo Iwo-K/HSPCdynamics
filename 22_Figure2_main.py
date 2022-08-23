@@ -7,9 +7,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.10.0
+#       jupytext_version: 1.12.0
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -72,6 +72,7 @@ x = np.where(comb_unfilt.obs.anno_man.cat.categories == 'Int prog')[0][0]
 comb_unfilt.uns['anno_man_colors'][x] = "#C5C5C5"
 sc.pl.umap(comb_unfilt, color=['anno_man', 'leiden'], wspace=0.7, save='unfiltered_annotation_leiden.pdf')
 sc.pl.umap(comb_unfilt, color=['leiden'], legend_loc='on data', save='unfiltered_clusters_ondata.pdf')
+del comb_unfilt
 
 # %% [markdown]
 # ## Plotting filtered data - basic information
@@ -147,13 +148,16 @@ tompos_clcounts = pd.read_csv('procdata/05script/model_input_tompos.csv', index_
 tomneg_clcounts = pd.read_csv('procdata/05script/model_input_tomneg.csv', index_col=0)
 
 # %%
+tompos_clcounts
+
+# %%
 #Calculating fraction of cells in each cluster
-totpos = tompos_clcounts.sc_total.copy()
-tompos_clcounts = tompos_clcounts.drop(labels=['flow_total', 'start_age', 'time', 'sc_total'], axis=1)
+totpos = tompos_clcounts.sc_ncells_total.copy()
+tompos_clcounts = tompos_clcounts.drop(labels=['flow_total', 'start_age', 'time', 'sc_ncells_total'], axis=1)
 tompos_clcountsN = (tompos_clcounts.T / totpos)
 
-totneg = tomneg_clcounts.sc_total.copy()
-tomneg_clcounts = tomneg_clcounts.drop(labels=['flow_total', 'start_age', 'time', 'sc_total'], axis=1)
+totneg = tomneg_clcounts.sc_ncells_total.copy()
+tomneg_clcounts = tomneg_clcounts.drop(labels=['flow_total', 'start_age', 'time', 'sc_ncells_total'], axis=1)
 tomneg_clcountsN = (tomneg_clcounts.T / totneg)
 
 # %%
@@ -192,3 +196,5 @@ cmap2 = utils.plots.cmap_RdBu2(values=None, vmin=avsum.value.min(), vmax=avsum.v
 sc.pl.umap(hoxb5, color = toplot, cmap = cmap2,
            vmin=avsum.value.min(), vmax=avsum.value.max(),
            save = 'rel_abundance_percluster_average.pdf')
+
+# %%
