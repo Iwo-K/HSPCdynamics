@@ -73,6 +73,8 @@ mean_normalized = mean_clusters./mean_hsc;
 prop_err = mean_normalized .* sqrt((err_mean_clusters./mean_clusters).^2 + (err_mean_hsc./mean_hsc).^2);
 
 prop_err = prop_err./repmat(sqrt(n_mice_time'-1),1,n_clusters);
+
+
 %% write output
 
 dlmwrite('input_tx_boot_err_prop.txt',prop_err)
