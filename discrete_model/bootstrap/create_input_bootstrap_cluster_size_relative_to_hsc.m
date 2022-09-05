@@ -30,20 +30,17 @@ data_norm = data_rid./repmat(data_rid(:,clu_hsc),1,n_clusters);
 
 for j = 1:n_utp
    
-       data_round = data_norm(time == unique_time(j),:);
+   data_round = data_norm(time == unique_time(j),:);
    l_dr = size(data_round,1);
    
-  new_set = ceil(rand(l_dr,1)*l_dr);
-%      new_set = 1:l_dr;
+   new_set = ceil(rand(l_dr,1)*l_dr);
 
-  data_round = data_round(new_set,:);
+   data_round = data_round(new_set,:);
 
-    means(:,j) = mean(data_round)';
+   means(:,j) = mean(data_round)';
   
-    sum_iter = sum_iter + std(data_round).^2*(l_dr-1);
-    
-    
-    
+   sum_iter = sum_iter + std(data_round).^2*(l_dr-1);
+       
 end
 
 pv_t = sum_iter/(n_tp-length(unique_time));

@@ -150,7 +150,7 @@ for i = 1:ld
     model_neg_hsc_store(i,:) = model_neg_hsc;
     
 end
-size(model_lab_hsc_store)
+
 model_lab_down = quantile(model_lab_store,0.025,1);
 model_lab_up = quantile(model_lab_store,0.975,1);
 
@@ -270,47 +270,38 @@ subplot(1,2,1)
 hold on
 
 
-  model_up = model_lab_h_up';
-    model_down = model_lab_h_down';
+model_up = model_lab_h_up';
+model_down = model_lab_h_down';
     
-    X = [t_plot';flipud(t_plot')]';
-    Y = [model_up;flipud(model_down)]';
+X = [t_plot';flipud(t_plot')]';
+Y = [model_up;flipud(model_down)]';
     
- 
-    
-    fill(X,Y,'b','facecolor',[1 1 1]*0.8,'edgecolor',[1 1 1]*0.8)
+fill(X,Y,'b','facecolor',[1 1 1]*0.8,'edgecolor',[1 1 1]*0.8)
     
 
-
-
-    plot(bestmodel_lab_hsc(:,1),bestmodel_lab_hsc(:,2), 'r', 'Linewidth', 1)
+plot(bestmodel_lab_hsc(:,1),bestmodel_lab_hsc(:,2), 'r', 'Linewidth', 1)
 
 errorbar(time,measured_lab_num_hsc,errors_lab_num_hsc, 'ob', 'LineWidth', 0.25, 'Capsize', 3,  'MarkerFaceColor', 'b', 'MarkerSize', 3)
 
 xlabel('time (days)')
 ylabel ('No of labelled cells')
 
-% legend('data','model')
-
 %
-
 subplot(1,2,2)
 
 hold on
 
 
-  model_up = model_neg_h_up';
-    model_down = model_neg_h_down';
+model_up = model_neg_h_up';
+model_down = model_neg_h_down';
     
-    X = [t_plot';flipud(t_plot')]';
-    Y = [model_up;flipud(model_down)]';
+X = [t_plot';flipud(t_plot')]';
+Y = [model_up;flipud(model_down)]';
     
  
+fill(X,Y,'b','facecolor',[1 1 1]*0.8,'edgecolor',[1 1 1]*0.8)
     
-    fill(X,Y,'b','facecolor',[1 1 1]*0.8,'edgecolor',[1 1 1]*0.8)
-    
-
-    plot(bestmodel_neg_hsc(:,1),bestmodel_neg_hsc(:,2), 'r', 'Linewidth', 1)
+plot(bestmodel_neg_hsc(:,1),bestmodel_neg_hsc(:,2), 'r', 'Linewidth', 1)
 
 errorbar(time,measured_neg_num_hsc,errors_neg_num_hsc, 'ob', 'LineWidth', 0.25, 'Capsize', 3,  'MarkerFaceColor', 'b', 'MarkerSize', 3)
 
@@ -321,12 +312,12 @@ xlabel('time (days)')
 ylabel('Cluster size')
 
 
-% legend('data','model')
 set(gcf, 'PaperUnits', 'centimeters');
 exportfig(gcf,'./figures/real_lab_neg_bootstrap.eps','FontMode', 'fixed','Fontsize',6 ,'color', 'cmyk','width',13,'height',4,'Renderer','painters','Lockaxes',0);%
 
 
 %%
+
     function dxdt = ODE(~,x)
         
         

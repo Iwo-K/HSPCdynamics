@@ -35,16 +35,15 @@ data_norm = data_rid ./ repmat(str2double(data{:,end}),1,n_clusters) .* repmat(s
 for j = 1:n_utp
 
     
-         data_round = data_norm(time == unique_time(j),:);
-   l_dr = size(data_round,1);
+    data_round = data_norm(time == unique_time(j),:);
+    l_dr = size(data_round,1);
    
-  new_set = ceil(rand(l_dr,1)*l_dr);
+    new_set = ceil(rand(l_dr,1)*l_dr);
   
-%    new_set = 1:l_dr;
-  data_round = data_round(new_set,:);
+    data_round = data_round(new_set,:);
 
     
-       means(:,j) = mean(data_round,1)';
+    means(:,j) = mean(data_round,1)';
     
     sum_iter = sum_iter + std(data_round,1).^2*(l_dr-1);
     

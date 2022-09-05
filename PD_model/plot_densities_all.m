@@ -87,7 +87,7 @@ for time = 1:9
     
 end
 
-
+mkdir('figures')
 
 set(gcf, 'PaperUnits', 'centimeters');
 exportfig(gcf,'./figures/density_all.eps','FontMode', 'fixed','Fontsize',6,'color', 'cmyk','width',23,'height',30,'Renderer','painters','Lockaxes',0);%

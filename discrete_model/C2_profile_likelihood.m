@@ -296,7 +296,7 @@ end
         theta(~boolFixed)=reducedtheta;
         
         
-              I_neg = theta(1: n_clu+2);
+        I_neg = theta(1: n_clu+2);
         
         
         l0 = theta(n_clu+3:(n_clu+1)*2 +2).*I_neg;

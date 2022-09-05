@@ -364,36 +364,5 @@ exportfig(gcf,'./figures/biphasic_fit.eps','FontMode', 'fixed','Fontsize',6,'col
 
 
 
-return
-
-%%
-figure(700)
-% clf
-for ii = 1:n_clu
-    
-    subplot(5,4,ii)
-    hold on
-    
-    plot(t_plot, model_lab(:,ii), 'r', 'Linewidth', 2)
-    
-    errorbar(time, measured_lab_rel_temp(:,ii), errors_lab_rel_temp(:,ii), 'ob', 'MarkerFaceColor', 'b')
-    
-    %     line([3,300],[1 1],'color','k')
-    
-    if ii >16 || ii == 16
-        xlabel('time (d)')
-        
-    end
-    if ii == 1 ||  ii == 5 ||  ii == 9 ||  ii == 13 ||  ii == 17
-        ylabel('lab freq')
-    end
-    
-    title(cluster_names(ii))
-    
-    
-    set(gca,'xscale','log')
-end
-
-
 
 end

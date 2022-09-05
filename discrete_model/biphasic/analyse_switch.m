@@ -149,36 +149,6 @@ set(gcf, 'PaperUnits', 'centimeters');
 exportfig(gcf,'./figures/netprolif_rates_biphasic.eps','FontMode', 'fixed','Fontsize',6,'color', 'cmyk','width', 8,'height',8,'Renderer','painters','Lockaxes',0);%
 
 
-return
-
-
-figure(2)
-clf
-
-hold on
-
-for i = 59:60
-    
-    best = data(i,2);
-    xneg = best - data(i,4);
-    xpos = data(i,3) - best;
-    
-    plot(best,i-58,'ob','markerfacecolor','b')
-    
-    errorbar(best,i-58,xneg,xpos,'horizontal','color','b')
-    
-    best = data(i+60,2);
-    xneg = best - data(i+60,4);
-    xpos = data(i+60,3) - best;
-    
-    plot(best,i-58,'or','markerfacecolor','r')
-    
-    
-    errorbar(best,i-58,xneg,xpos,'horizontal','color','r')
-    
-end
-
-axis([-0.1 5000000 0.3 2.2])
 
 
 end

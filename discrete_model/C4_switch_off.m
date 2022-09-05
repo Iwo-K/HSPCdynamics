@@ -134,7 +134,7 @@ for ii = 1:n_clu
 end
 
 
-dlmwrite(['./output/waiting_times_deterministic' num2str(vec_clu) '.txt'],[cluster_names', model_R']);
+dlmwrite(['./output/switch_off_' num2str(vec_clu) '.txt'],[cluster_names', model_R']);
 
 
 set(gcf, 'PaperUnits', 'centimeters');
