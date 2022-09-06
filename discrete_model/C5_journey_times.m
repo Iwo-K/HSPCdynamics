@@ -1,4 +1,4 @@
-function C5_waiting_times
+function C5_journey_times
 %% general info
 
 dir = './input/';
@@ -105,7 +105,7 @@ for i = 2:20
 end
 % [cluster_names(2:end)', t_plot(indi(2:end))']
 
-dlmwrite('./output/journey_times.txt',[cluster_names(2:end)', t_plot(indi(2:end))'])
+dlmwrite('./output/waiting_times.txt',[cluster_names(2:end)', t_plot(indi(2:end))'])
 %%
 
 figure(9)

@@ -32,7 +32,7 @@ This script will create several directories to hold output files from respective
 ** create_input directory
 Prior to running the analysis the necessary input files are generated using the scripts in this directory.
 Scripts read in data from the upstream scRNA-Seq analysis.
-** Scripts in the main directory
+** scripts in the main directory
 Generates the main discrete model of HSPC dynamics, with the following scripts.
 For convenience we provide our parameter values in the ~output/best.txt~ file (and with bounds in ~output/bouds.txt~), which are recognised by the matlab scripts.
 
@@ -67,7 +67,7 @@ Calculated in scripts C3_prepare_input_transplantation_propagate_error.m and C4_
 
 * Continuous model
 Code uses the pseudodynamics framework devloped by Fabian Theis' lab ([[https://doi.org/10.1038/s41587-019-0088-0][paper]], [[https://github.com/theislab/pseudodynamics][Github]]).
-Code requiers a specific versiono of matlab: r2017b and gcc: gcc-4.9.4-gcc-4.8.5-3sdjf2c.
+Code requiers a specific version of matlab: r2017b and gcc: gcc-4.9.4-gcc-4.8.5-3sdjf2c.
 
 Analysis is provided in the PD_model directory, each analysed trajectory in a separate subdirectory.
 Each directory follows the same scheme with scripts numbered according to the order of execution.

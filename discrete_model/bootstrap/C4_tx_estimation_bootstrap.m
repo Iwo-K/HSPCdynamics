@@ -1,4 +1,4 @@
-function C6_tx_estimation_bootstrap
+function C4_tx_estimation_bootstrap
 %% bootstrap results
 
 data_boot = dlmread('bootstrap_simulations.txt');

@@ -1,4 +1,4 @@
-function C4_prepare_input_transplantation_propagate_error
+function C3_prepare_input_transplantation_propagate_error
 %% read data
 
 input_dir = '../../procdata/07script/';
