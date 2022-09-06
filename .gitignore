@@ -32,6 +32,12 @@ discrete_model/outputs/
 
 !discrete_model/output/best.txt
 !discrete_model/output/bounds.txt
+!discrete_model/output/self_renewal.txt
+!discrete_model/output/net_proliferation.txt
+!discrete_model/output/differentiation_matrix.txt
+!discrete_model/output/waiting_times.txt
+!discrete_model/output/switchoff_deterministic1*21*22.txt
+
 !discrete_model/bootstrap/input_tx_boot_err_prop.txt
 !discrete_model/biphasic/output/best_switch.txt
 !PD_model/clu_6/tables/*
