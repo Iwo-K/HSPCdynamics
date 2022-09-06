@@ -15,9 +15,9 @@ source("./utils/scfuns.R")
 
 #' Output directories
 procdata_dir = './procdata/01script/'
-dir.create(procdata_dir, showWarnings = FALSE)
+dir.create(procdata_dir, showWarnings = FALSE, recursive=TRUE)
 figures_dir = './figures/01script/'
-dir.create(figures_dir, showWarnings = FALSE)
+dir.create(figures_dir, showWarnings = FALSE, recursive=TRUE)
 
 #' ## Loading data
 meta = read.csv("./data/SS2/scB5Tom_SS2_cellmeta.csv", as.is = TRUE)

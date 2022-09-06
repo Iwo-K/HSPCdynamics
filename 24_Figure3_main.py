@@ -470,7 +470,7 @@ sc.pl.umap(hoxb5, color='wtimeD', norm=mpl.colors.LogNorm(vmin=10), save='_wtime
 # ## Switch off (cluster 0)
 
 # %%
-swoff = pd.read_csv('./discrete_model/output/waiting_times_deterministic1  21  22.txt',
+swoff = pd.read_csv('./discrete_model/output/switchoff_deterministic1  21  22.txt',
                     index_col=0, header=None)
 t = np.array(range(1,271))
 swoff.columns = t

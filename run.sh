@@ -16,9 +16,6 @@ container="/home/idk25/ik_rds/containers/rpy_v4/rpy_v4_p3_fix2.sif"
 
 echo "Started:"; date
 singularity exec ${container} R -e "knitr::spin('01_SS2_processing.R')"
-# singularity exec ${container} R -e "knitr::spin('02_10x_processing.py')"
-# singularity exec ${container} R -e "knitr::spin('09_DE.R')"
-# singularity exec ${container} R -e "knitr::spin('10_DEen.R')"
 
 pynotebooks="02_10x_processing
  04_integration
