@@ -146,6 +146,15 @@ demk2 = run_transitionDE(mk,
                   dir = mkdir,
                   BPPARAM = BPPARAM)
 
+# %%
+# [markdown]
+# ### Correlation with the derivative
+
+# %% tags=[]
+x = mkpar$dpt_pseudotime
+l = max(x) - min(x)
+analyse_cor(demk1$sim, pseudotime=mkpar$dpt_pseudotime, drift=mkpar$drift, TFs=allTFs, pseudotime_lim=c(min(x) + 0.05*l, max(x) - 0.05*l), prefix=paste0(mkdir, 'mk_'))
+
 # %% [markdown]
 # ### Additional plots for the growth DE
 
@@ -263,6 +272,19 @@ deneu1 = run_transitionDE(neu,
                  traj_name = 'neu_drift',
                  dir = neudir,
                  BPPARAM = BPPARAM)
+
+# %% [markdown]
+# ### Correlation with the derivative
+
+# %%
+source('./utils/DE.R')
+
+# %%
+x = neupar$dpt_pseudotime
+l = max(x) - min(x)
+analyse_cor(deneu1$sim, pseudotime=neupar$dpt_pseudotime, drift=neupar$drift, TFs=allTFs, prefix=paste0(neudir, 'neu_'), pseudotime_lim=c(min(x) + 0.05*l, max(x) - 0.05*l), scale_ratio=4000)
+
+# %%
 
 # %% [markdown]
 # #### Additional figures
@@ -446,6 +468,15 @@ deery1 = run_transitionDE(ery,
                  traj_name = 'ery_drift',
                  dir = erydir,
                  BPPARAM = BPPARAM)
+
+# %%
+# [markdown]
+# ### Correlation with the derivative
+
+# %% tags=[]
+x = erypar$dpt_pseudotime
+l = max(x) - min(x)
+analyse_cor(deery1$sim, pseudotime=erypar$dpt_pseudotime, drift=erypar$drift, TFs=allTFs, pseudotime_lim=c(min(x) + 0.05*l, max(x) - 0.05*l), prefix=paste0(erydir, 'ery_'))
 
 # %% [markdown]
 # ### Additional figures
@@ -659,3 +690,10 @@ deDC2 = run_transitionDE(DC,
                  dir = DCdir,
                  BPPARAM = BPPARAM)
 
+# %% [markdown]
+# ### Correlation with the derivative
+
+# %% tags=[]
+x = DCpar$dpt_pseudotime
+l = max(x) - min(x)
+analyse_cor(deDC1$sim, pseudotime=DCpar$dpt_pseudotime, drift=DCpar$drift, TFs=allTFs,pseudotime_lim=c(min(x) + 0.05*l, max(x) - 0.05*l), prefix=paste0(DCdir, 'DC_'), scale_ratio=1000)

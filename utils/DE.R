@@ -262,3 +262,102 @@ str2mouse = function(x){
     x = strsplit(x, split = ';')[[1]]
     x = tools::toTitleCase(tolower(x))
     }
+
+
+                   
+                   
+#calculating derivative of the drift
+diff_drift = function(x, dpt, drift, plot=FALSE){
+    af = approxfun(dpt, drift)
+
+    y = af(x)
+
+    #getting the midpoints
+    mids = x[1:(length(x)-1)] + (x[2:length(x)] - x[1:(length(x)-1)])/2
+    #getting derivatives
+    dy = diff(y)
+
+    #calculating the derivative for each cell
+    daf = approxfun(mids, dy)
+
+    if(plot){
+        g = ggplot(data.frame(), aes(x=x, y=y)) + 
+        geom_point(size=3) + #black original points
+        geom_point(data=data.frame(), aes(x=mids, y=dy), color='red', size=3) + #red mid points by derivative
+        geom_point(data=data.frame(), aes(x=x, daf(x)), color='green', size=3) #green interpolated points in the same spots
+        print(g)
+    }
+    return(daf(x))
+    }
+
+
+# Runs an associationTest to find dynamic genes and then tests their correlation with the differentiation rates
+analyse_cor = function(sim, pseudotime, drift, pseudotime_lim=NULL, TFs, prefix, scale_ratio=250){
+                      
+    #First running an association test to seleting genes with varying along pseudotime with l2fc of at least1
+    de = associationTest(sim, l2fc=1, contrastType='end')
+    de$fdr = p.adjust(de$pvalue, method='fdr')
+    de = de[complete.cases(de),]
+    desig = de[de$fdr < 0.01,]
+            
+    #predicting smoothed expression for each de gene
+    yhat = predictSmooth(sim, gene = row.names(desig), nPoints = 100, tidy = TRUE)
+    yhat = data.table(yhat)[, yhat_scaled := scale(yhat), by='gene']
+    
+    if(!is.null(pseudotime_lim)){
+        print(paste0("Clipping pseudotime to: ", pseudotime_lim))
+    yhat = yhat[(time > pseudotime_lim[1]) & (time < pseudotime_lim[2]),]
+    }
+    
+    yhatw = dcast(yhat, time~gene, value.var='yhat')
+            
+    ddrift = diff_drift(x = yhatw$time, pseudotime, drift, plot=TRUE)
+    keept = !is.na(ddrift)
+    
+    #calculating correlations
+    ddrift_cors = apply(yhatw[,colnames(yhatw) != "time", with=FALSE], 2, function(x) cor(x[keept], ddrift[keept]))
+    ddrift_cors = ddrift_cors[order(ddrift_cors, decreasing=TRUE)]
+                    
+    toptf = head(ddrift_cors[names(ddrift_cors) %in% TFs], n = 10)    
+    print(toptf)                    
+    bottomtf = tail(ddrift_cors[names(ddrift_cors) %in% TFs], n = 10)    
+    print(bottomtf)
+                               
+    default_20 = c('#1f77b4', '#ff7f0e', '#279e68', '#d62728', '#aa40fc', '#8c564b', '#e377c2', '#b5bd61',
+               '#17becf', '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2',
+               '#dbdb8d', '#9edae5', '#ad494a', '#8c6d31')
+                        
+    ratio=1/max(ddrift)*10
+
+    gup = ggplot(yhat[gene %in% names(toptf),], aes(x=time, y=yhat_scaled, color=gene)) + 
+        geom_line(size=0.8) +
+        geom_line(data= data.frame(), aes(x = yhatw$time, y = ddrift*scale_ratio), , color='grey', linetype='dashed', size = 0.8) +
+        scale_y_continuous(name = 'Scaled expression', sec.axis = sec_axis(~.*1/scale_ratio, name="Diff. rate derivative")) +
+        theme(axis.text.y.right = element_text(color = "grey45"),
+            axis.title.y.right = element_text(color = "grey45"),
+            axis.text.y.left = element_text(color = "black"),
+            axis.title.y.left = element_text(color = "black")) +
+           scale_color_manual(values=default_20) +
+           theme_paper +
+           xlab('Pseudotime') +
+           ggtitle('Top positively correlated TFs') 
+
+    gdown = ggplot(yhat[gene %in% names(bottomtf),], aes(x=time, y=yhat_scaled, color=gene)) + 
+        geom_line(size=0.8) +
+        geom_line(data= data.frame(), aes(x = yhatw$time, y = ddrift*scale_ratio), , color='grey', linetype='dashed', size = 0.8) +
+        scale_y_continuous(name = 'Scaled expression', sec.axis = sec_axis(~.*1/scale_ratio, name="Diff. rate derivative")) +
+        theme(axis.text.y.right = element_text(color = "grey45"),
+            axis.title.y.right = element_text(color = "grey45"),
+            axis.text.y.left = element_text(color = "black"),
+            axis.title.y.left = element_text(color = "black")) +
+           scale_color_manual(values=default_20) +
+           theme_paper +
+           xlab('Pseudotime') +
+           ggtitle('Top negatively correlated TFs')
+
+    corplots = cowplot::plot_grid(plotlist = list(gup, gdown), align='h', ncol=1)
+    ggsave(paste0(prefix, '_topcorplots.pdf'), corplots, height= 6, width=5)
+                        
+    fwrite(data.table(gene = names(ddrift_cors), cor = ddrift_cors), paste0(prefix, '_ddrift_cors.csv'))
+}
+                        
