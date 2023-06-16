@@ -42,6 +42,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import plotnine as pn
 from sklearn.metrics import pairwise_distances
 import networkx as nx
+from scipy.stats import linregress
 
 sc.settings.verbosity = 3
 sc.settings.figdir = './figures/24script/'
@@ -592,22 +593,35 @@ def repel_labels(ax, x, y, labels, k=0.01, ex_mins=0.05, ex_maxs=0.05):
     maxs = np.max(all_pos+y_span*ex_maxs, 0)
     ax.set_xlim([mins[0], maxs[0]])
     ax.set_ylim([mins[1], maxs[1]])
-    
-plt.scatter(np.log10(df5.cons.values), np.log10(df5.drates.values), s=18)
+
+import seaborn as sns
+slope, intercept, r, p, se = linregress(x=np.log10(df5.cons.values), y=np.log10(df5.drates.values))
+print(r**2)
+
+sns.regplot(np.log10(df5.cons.values), np.log10(df5.drates.values), scatter_kws={'s':16})
 plt.xlabel("log10(connectivity)")
 plt.ylabel("log10(diff. rate)")
 ax = plt.gca()
 repel_labels(ax, np.log10(df5.cons).values, np.log10(df5.drates).values, labels=df5.index.values,
-             k=0.25, ex_mins=0.07, ex_maxs=0.03)
-plt.savefig(base_figures + 'cons_drates.pdf') 
+             k=0.25, ex_mins=0.07, ex_maxs=0.01)
+plt.savefig(base_figures + 'cons_drates.pdf')
 plt.show()
 
 
 # %% tags=[]
-plt.scatter(np.log10(df5.ddpt.values), np.log10(df5.drates.values), s=18)
+slope, intercept, r, p, se = linregress(x=np.log10(df5.ddpt.values), y=np.log10(df5.drates.values))
+print(r**2)
+
+# %%
+sc.set_figure_params( dpi=150, dpi_save = 400, frameon=False, figsize = (cm2inch(6),cm2inch(6)), format='png',fontsize=7.5)
+
+sns.regplot(x=np.log10(df5.ddpt.values), y=np.log10(df5.drates.values))
 plt.xlabel("log10(pseudotime change)")
 plt.ylabel("log10(differentiation rates)")
-ax = plt.gca()
-repel_labels(ax, np.log10(df5.ddpt).values, np.log10(df5.drates.values), labels=df5.index.values, k=0.50)
-plt.savefig(base_figures + 'drate_ddpt.pdf') 
+for i in range(len(df5.index)):
+    plt.annotate(df5.index[i], (np.log10(df5.ddpt[i]), np.log10(df5.drates[i])),
+                 fontsize=5,
+                 xytext=(4, 1), textcoords='offset points',)
+
+plt.savefig(base_figures + 'drate_ddpt.pdf')
 plt.show()
