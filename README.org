@@ -64,6 +64,34 @@ Scripts C1_bootstrap.m and C2_generate_bounds.m read bootstrap simulations and e
 
 *** Prediction for the transplantation data
 Calculated in scripts C3_prepare_input_transplantation_propagate_error.m and C4_tx_estimation_bootstrap.m
+** any_topology
+The code "main_any_topology" runs an optimisation of our model for an arbitrary topology, independently of the PAGA scheme. The only restriction is that the number of differentiation has to be smaller or equal 302, otherwise the number of unknown variables is bigger than the number of data.
+
+To select the rate that you want to allow, enter 1 in the file "any_topology.xlsx". For example, if you want to allow the rate from cluster 16 to cluster 0c, place 1 in the intersection of the row "cluster 16" and column "cluster 0c". Any undesired rate should be set to 0.
+
+Run the code with multiple starts and check the plot to determine if you find a reasonable minimum (model fits the data well). You can compare models with likelihood ratio or akaike criterion.
+** explore_parameter_numbers
+This session is meant to explore different topologies, similarly to the any_topology code, but focuses only on the topologies that are contained in our selected PAGA edges.
+
+Since we chose 37 edges, there are in principle 2^37 submodels. Since this is too many combinations, we picked only those combinations that connect all populations with at least one edge and that overall
+derive from the HSC tip cluster 0a. They are still many models, so we focussed on models that have less parameters than ours. For some of them we could explore
+all the combinations, for some others there was still a computaional burdain. We nevertheles provide the results we obtained,
+and a code that would allow to further explore more combinations if desiderd.
+
+Run count_combinations for storing all the combinations that are meaningful (>200000)
+
+Then select the desired number of parameters and print a dataframe with those combinations (check_combinations).
+
+Finally use run_combinations to obtained the desired minima.
+** transplantation data model refit - tx_iterative_model_selection
+The code launch_loop.m launches an optimisation of the kinetics after transplantation assuming that only a subgroup of populations change their differentiation/proliferation rates. Each run of launch_loop tests 1000 combinations
+of populations that may change their rate. If ran 66 times, it covers all the possibilities of choosing a subgroup of changing populations out of the 16 that can possibly change (~66000 combinations).
+
+It stores the best chisquared in the track file for each combination of changed population.
+
+Then, run analyse_track.m to assess the minimum number of parameters that still fits the data (see methods).
+
+Finally run pl_top_models to find confidence bounds on the changing parameters.
 
 * Continuous model
 Code uses the pseudodynamics framework devloped by Fabian Theis' lab ([[https://doi.org/10.1038/s41587-019-0088-0][paper]], [[https://github.com/theislab/pseudodynamics][Github]]).

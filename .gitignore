@@ -17,8 +17,6 @@
 *.bai
 *[#]*
 *pdf
-*csv
-*txt
 *h5ad
 *h5
 procdata
