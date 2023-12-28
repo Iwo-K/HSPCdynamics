@@ -1,7 +1,7 @@
 #+STARTUP: overview
 #+TITLE: HSPC dynamics analysis code repository
 
-This repository contains R, python and Matlab scripts used to perform analysis published in the Kucinski et al. 2023 paper: "A time and single-cell resolved model of murine bone marrow hematopoiesis".
+This repository contains R, python and Matlab scripts used to perform analysis published in the Kucinski et al. 2023 paper: "A time- and single-cell-resolved model of murine bone marrow hematopoiesis".
 
 An interactive visualisation can be found: [[https://gottgens-lab.stemcells.cam.ac.uk/bgweb2/HSPC_dyn2022/][here]]
 
@@ -10,7 +10,7 @@ All the scripts for analysis are located in the main directory.
 Scripts process the data, reproduce figures presented in our article and prepare inputs necessary for the discrete and continous models of HSPC dynamics.
 
 The easiest way to reproduce our scRNA-Seq analysis is to use our [[https://docs.sylabs.io/guides/3.10/user-guide/][Singularity]] container.
-The container contains R and python installations and all necessary packages and can be found on [[https://doi.org/10.5281/zenodo.10156542][Zenodo]]
+The container contains R and python installations and all necessary packages and can be found on [[https://doi.org/10.17632/vwg6xzmrf9.1][Mendeley Data]]
 
 ** How to use
 To reproduce the analysis presented in the paper:
@@ -20,9 +20,9 @@ To reproduce the analysis presented in the paper:
 git clone https://github.com/Iwo-K/HSPCdynamics
 cd HSPCdynamics
 #+end_src
-2. Download the container from [[https://doi.org/10.5281/zenodo.10156542][Zenodo]]
+2. Download the container from [[https://doi.org/10.17632/vwg6xzmrf9.1][Mendeley Data]]
 3. Modify the container variable in the run_analysis.sh script to point to the singularity image
-4. Download the input data from [[https://doi.org/10.5281/zenodo.10156542][Zenodo]], decompress it and move it to the directory: HSPCdynamics/data
+4. Download the input data from [[https://doi.org/10.17632/vwg6xzmrf9.1][Mendeley Data]], decompress it and move it to the directory: HSPCdynamics/data
 5. Run the analysis:
  #+begin_src bash
  ./run_analysis.sh
