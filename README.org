@@ -133,3 +133,10 @@ In the publication clusters were relabelled with consecutive numbers, this repos
 |     19 |     20 |            28 |          19 |
 |     NA |     21 |            0a |          0a |
 |     NA |     22 |            0b |          0b |
+* Troubleshooting
+** procdata/01script/SS2data.h5ad not generated
+As reported in issue #2, sometimes read.csv changes the name of the first column. To avoid this problem specify the encoding, as follows:
+#+begin_src R
+meta = read.csv("./data/SS2/scB5Tom_SS2_cellmeta.csv", as.is = TRUE, fileEncoding = "UTF-8-BOM")
+#+end_src
+Great thanks to the user katosh for identifying and solving this problem.
